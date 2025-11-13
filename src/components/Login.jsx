@@ -1,32 +1,48 @@
 import { useState } from "react";
-import { loginUser, logoutUser } from "../firebase/auth";
+import { useAuth } from "../context/AuthContext";
 
-export default function Login() {
+export default function Login({ onRegistroClick, onLoginExitoso }) {
+  const { login, loginWithGoogle } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const user = await loginUser(email, password);
-      alert(`Bienvenido, ${user.email}`);
-    } catch (error) {
-      alert("Error: " + error.message);
+      await login(email, password);
+      if (onLoginExitoso) onLoginExitoso();
+    } catch (err) {
+      setError("Error al iniciar sesión: " + err.message);
     }
   };
 
-  const handleLogout = async () => {
-    await logoutUser();
-    alert("Sesión cerrada");
+  const handleGoogle = async () => {
+    try {
+      await loginWithGoogle();
+      if (onLoginExitoso) onLoginExitoso();
+    } catch (err) {
+      setError("Error con Google: " + err.message);
+    }
   };
 
   return (
-    <form onSubmit={handleLogin}>
+    <div className="login-container">
       <h2>Iniciar sesión</h2>
-      <input type="email" placeholder="Correo" onChange={(e) => setEmail(e.target.value)} />
-      <input type="password" placeholder="Contraseña" onChange={(e) => setPassword(e.target.value)} />
-      <button type="submit">Entrar</button>
-      <button type="button" onClick={handleLogout}>Cerrar sesión</button>
-    </form>
+      {error && <p className="error">{error}</p>}
+      <form onSubmit={handleLogin}>
+        <input type="email" placeholder="Correo" onChange={(e) => setEmail(e.target.value)} required />
+        <input type="password" placeholder="Contraseña" onChange={(e) => setPassword(e.target.value)} required />
+        <button type="submit">Entrar</button>
+      </form>
+
+      <button onClick={handleGoogle}>Continuar con Google</button>
+      <p>
+        ¿No tienes cuenta?{" "}
+        <button className="link" onClick={onRegistroClick}>
+          Regístrate
+        </button>
+      </p>
+    </div>
   );
 }

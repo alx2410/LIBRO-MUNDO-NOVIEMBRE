@@ -1,17 +1,13 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import AuthModal from "./AuthModal";
+import { ZonaUsuario } from "./ZonaUsuario";
 
 export default function Navbar() {
-  const [showAuth, setShowAuth] = useState(false); // 👈 controla el modal
-  const [searchTerm, setSearchTerm] = useState("")
+  const [showAuth, setShowAuth] = useState(false);
 
-  const handleSearch = (e) => {
-    e.preventDefault()
-    if (searchTerm.trim() === "") return;
-    console.log("Buscando:", searchTerm);
-  }
   return (
+<<<<<<< HEAD
     <nav>
 <h1>
 <Link to="/miniwattpad">MiniWattpad</Link>
@@ -19,10 +15,17 @@ export default function Navbar() {
       
       <ul>
         
+=======
+    <nav className="navbar">
+      <h1>MiniWattpad</h1>
+
+      <ul className="nav-links">
+>>>>>>> 0fa67559f97e0be5ac9ebf54138a3ee9ec0cee13
         <li><Link to="/explorar">Explorar</Link></li>
         <li><Link to="/comunidad">Comunidad</Link></li>
       </ul>
 
+<<<<<<< HEAD
       {/*BARRA DE BUSQUEDA*/}
       <form className="search-bar" onSubmit={handleSearch}>
   <input
@@ -58,6 +61,10 @@ export default function Navbar() {
      <button onClick={() => setShowAuth(true)}>Iniciar sesión</button>
 
       {/* 👇 aquí el modal aparece solo cuando showAuth es true */}
+=======
+      <ZonaUsuario onAbrirLogin={() => setShowAuth(true)} />
+
+>>>>>>> 0fa67559f97e0be5ac9ebf54138a3ee9ec0cee13
       {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
     </nav>
   );
