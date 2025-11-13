@@ -1,13 +1,3 @@
-<<<<<<< HEAD
-export default function Perfil(){
-    return(
-        <div>
-            <h1>Perfil</h1>
-            <p>ARA ARA </p>
-        </div>
-    )
-}
-=======
 import { useAuth } from "../context/AuthContext";
 
 export default function Perfil() {
@@ -32,4 +22,3 @@ export default function Perfil() {
     </div>
   );
 }
->>>>>>> 0fa67559f97e0be5ac9ebf54138a3ee9ec0cee13

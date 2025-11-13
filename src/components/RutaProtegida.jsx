@@ -1,21 +1,3 @@
-<<<<<<< HEAD
-
-// src/components/RutaProtegida.jsx
-import { Navigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext"; // o "../context/authContext"
-
-export default function RutaProtegida({ children }) {
-  const { user } = useAuth(); // 👈 usuario actual de Firebase
-
-  // Si no hay usuario, redirige al inicio ("/")
-  if (!user) {
-    return <Navigate to="/" replace />;
-  }
-
-  // Si hay usuario, renderiza el componente hijo
-  return children;
-}
-=======
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
@@ -30,4 +12,3 @@ export function RutaProtegida({ children }) {
 
   return children;
 }
->>>>>>> 0fa67559f97e0be5ac9ebf54138a3ee9ec0cee13
