@@ -1,178 +1,133 @@
-.home-container {
-  font-family: "Poppins", sans-serif;
-  background: linear-gradient(180deg, #fff8f7, #fff);
-  color: #222;
-  text-align: center;
-  padding: 50px 20px;
+.inicio-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 80px 120px;
+  background: #fdf0e5;
 }
 
-/* === HERO === */
-.hero h1 {
-  font-size: 3rem;
-  margin-bottom: 10px;
-  background: linear-gradient(90deg, #ff6b6b, #ff8c42);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.inicio-texto {
+  max-width: 520px;
+}
+
+.inicio-texto h1 {
+  font-size: 64px;
   font-weight: 700;
+  line-height: 1.1;
+  color: #000;
 }
 
-.hero p {
-  font-size: 1.2rem;
-  color: #555;
-  margin-bottom: 40px;
+.descripcion {
+  font-size: 18px;
+  margin: 20px 0 30px;
+  color: #333;
 }
 
-/* === CARRUSELES === */
-.categoria {
-  margin-bottom: 50px;
-  text-align: left;
-}
-
-.categoria h2 {
-  margin-left: 10px;
-  color: #ff6b6b;
-  font-size: 1.8rem;
-}
-
-.carrusel-libros {
-  display: flex;
-  gap: 20px;
-  overflow-x: auto;
-  scroll-behavior: smooth;
-  padding: 10px;
-}
-
-.libro-card {
-  min-width: 180px;
-  height: 250px;
-  background-color: #fff;
-  border-radius: 15px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  transition: transform 0.3s ease;
-}
-
-.libro-card:hover {
-  transform: scale(1.05);
-}
-
-
-.home-container {
-  font-family: "Poppins", sans-serif;
-  background: linear-gradient(180deg, #fff8f7, #fff);
-  color: #222;
-  text-align: center;
-  padding: 50px 20px;
-}
-
-/* === HERO === */
-.hero h1 {
-  font-size: 3rem;
-  margin-bottom: 10px;
-  background: linear-gradient(90deg, #ff6b6b, #ff8c42);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-weight: 700;
-}
-
-.hero p {
-  font-size: 1.2rem;
-  color: #555;
-  margin-bottom: 40px;
-}
-
-.mini-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 40px;
-  background: #fff8f7;
-  font-family: "Poppins", sans-serif;
-}
-
-.titulo-popular {
-  font-size: 2rem;
-  font-weight: bold;
-  color: #222;
-  margin-bottom: 30px;
-  text-align: center;
-}
-
-/* === CARRUSEL === */
-.carrusel-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  max-width: 1200px;
-}
-
-.carrusel-libros {
-  display: flex;
-  gap: 20px;
-  overflow-x: auto;
-  scroll-behavior: smooth;
-  padding: 10px;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.carrusel-libros::-webkit-scrollbar {
-  display: none;
-}
-
-.libro-card {
-  flex: 0 0 auto;
-  width: 180px;
-  height: 260px;
-  border-radius: 15px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  cursor: pointer;
-}
-
-.libro-card:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
-}
-
-.libro-card img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* === FLECHAS === */
-.flecha {
-  background-color: rgba(255, 255, 255, 0.85);
+.btn-comenzar {
+  background: #000;
+  color: white;
   border: none;
-  font-size: 2rem;
+  padding: 16px 40px;
+  border-radius: 30px;
+  font-size: 18px;
   cursor: pointer;
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 10;
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
+  transition: 0.2s;
+}
+
+.btn-comenzar:hover {
+  opacity: 0.85;
+}
+
+.texto-sec {
+  margin-top: 15px;
+  font-size: 15px;
+  color: #444;
+}
+
+.texto-sec span {
+  color: #000;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.inicio-imagen img {
+  width: 480px;
+  border-radius: 20px;
+}
+
+
+/* MINI CARRUSEL */
+.mini-carrusel-container {
+  margin-top: 80px;
+  text-align: center;
+}
+
+.mini-carrusel-title {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.mini-carrusel {
   display: flex;
-  align-items: center;
   justify-content: center;
-  transition: background 0.3s ease;
+  align-items: center;
+  gap: 15px;
 }
 
-.flecha:hover {
-  background-color: rgba(255, 255, 255, 1);
+.mini-carrusel-items {
+  display: flex;
+  gap: 15px;
 }
 
-.flecha.izquierda {
-  left: 5px;
+.mini-carrusel-items img {
+  width: 150px;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 10px;
+  transition: transform 0.2s;
 }
 
-.flecha.derecha {
-  right: 5px;
+.mini-carrusel-items img:hover {
+  transform: scale(1.05);
+}
+
+.carrusel-btn {
+  background: #f5f5f5;
+  border: none;
+  font-size: 28px;
+  padding: 10px 15px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.carrusel-btn:hover {
+  background: #e0e0e0;
+}
+
+/* FOOTER */
+.footer {
+  margin-top: 80px;
+  padding: 40px 0;
+  background: #111;
+  color: #ccc;
+  text-align: center;
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+  margin-bottom: 15px;
+}
+
+.footer-links a {
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.footer-copy {
+  font-size: 13px;
+  opacity: 0.7;
 }

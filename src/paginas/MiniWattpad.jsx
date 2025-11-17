@@ -1,53 +1,70 @@
-import React, { useRef } from "react";
 import "./MiniWattpad.css";
 
 export default function MiniWattpad() {
-  const carruselRef = useRef(null);
-
-  const libros = [
-    { imagen: "https://images.cdn1.buscalibre.com/fit-in/360x360/5c/27/5c274fcb3d66be1483ab9ef5a6fad39e.jpg" },
-    { imagen: "https://images.cdn3.buscalibre.com/fit-in/360x360/49/42/4942b939de795b95d9c852609abe48df.jpg" },
-    { imagen: "https://www.communitas.pe/web/image/product.template/117279/image_1024?unique=e631bdf" },
-    { imagen: "https://pics.filmaffinity.com/Bajo_la_misma_estrella-457483777-mmed.jpg" },
-    { imagen: "https://images.cdn1.buscalibre.com/fit-in/360x360/ce/90/ce90b5c4ec2497bd3b1585f445965656.jpg" },
-    { imagen: "https://www.crisol.com.pe/media/catalog/product/cache/6b78ac9ed927a3c2db42a3c84dab4ce5/9/7/9789874924995_di9fgclhpe8qjemn.jpg" },
-    { imagen: "https://images.cdn3.buscalibre.com/fit-in/360x360/ee/35/ee3539aef23f320de4f6ae616ffb3477.jpg" },
-    { imagen: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR101HMIdYjNpQh9VMN7ww8dfY2YV2TOIfwzQ&s" },
-    { imagen: "https://img.wattpad.com/cover/216790493-256-k821716.jpg" },
-    { imagen: "https://images.cdn3.buscalibre.com/fit-in/360x360/a9/d2/a9d2878e83e4b41ffddedca20771641f.jpg" },
-  ];
-
-  const scroll = (direction) => {
-    const { current } = carruselRef;
-    if (!current) return;
-    const scrollAmount = 300;
-    current.scrollBy({
-      left: direction === "left" ? -scrollAmount : scrollAmount,
-      behavior: "smooth",
-    });
-  };
-
   return (
-    <div className="mini-container">
-      <h1 className="titulo-popular">Lo más popular</h1>
+    <div>
 
-      <div className="carrusel-wrapper">
-        <button className="flecha izquierda" onClick={() => scroll("left")}>
-          ❮
-        </button>
+      {/* SECCIÓN PRINCIPAL */}
+      <div className="inicio-container">
+        <div className="inicio-texto">
+          <h1>
+            Ven por la historia. <br />
+            Quédate por la conexión.
+          </h1>
 
-        <div className="carrusel-libros" ref={carruselRef}>
-          {libros.map((libro, index) => (
-            <div className="libro-card" key={index}>
-              <img src={libro.imagen} alt={`Libro ${index + 1}`} />
-            </div>
-          ))}
+          <p className="descripcion">
+            Historias mejores que el streaming y secciones de comentarios
+            mejores que el chat de tu grupo.
+          </p>
+
+          <button className="btn-comenzar">Comenzar</button>
+
+          <p className="texto-sec">
+            ¿Ya tienes una cuenta? <span>Inicia sesión</span>
+          </p>
         </div>
 
-        <button className="flecha derecha" onClick={() => scroll("right")}>
-          ❯
-        </button>
+        <div className="inicio-imagen">
+          <img
+            src="https://img.wattpad.com/illustration-example.png"
+            alt="Ilustración"
+          />
+        </div>
       </div>
+
+      {/* MINI CARRUSEL */}
+      <div className="mini-carrusel-container">
+        <h2 className="mini-carrusel-title">Recomendados para ti</h2>
+
+        <div className="mini-carrusel">
+          <button className="carrusel-btn">‹</button>
+
+          <div className="mini-carrusel-items">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTM04Wu4kbkTnQb7l_uOFpwFWvJivWGxavtlw&s" alt="img1" />
+            <img src="https://images.cdn1.buscalibre.com/fit-in/360x360/87/ac/87ac05af4868b66b9520d3f84dbc886e.jpg" alt="img2" />
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTG9BxxJcDRsBabRy0I6hdrqAEsOekJpksRrw&s" alt="img3" />
+            <img src="https://images.cdn2.buscalibre.com/fit-in/360x360/8e/28/8e2808346ffb11afb7f118576999050a.jpg" alt="img4" />
+            <img src="https://images.cdn3.buscalibre.com/fit-in/360x360/49/42/4942b939de795b95d9c852609abe48df.jpg" alt="img5" />
+            <img src="https://images.cdn1.buscalibre.com/fit-in/520x520/11/d2/11d2f5cc990034a702c1846d57967bb4.jpg" alt="" />
+            <img src="https://images.cdn3.buscalibre.com/fit-in/360x360/1b/d5/1bd59711aa7de679ded4d293ff95fa51.jpg" alt="" />
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR1kNWJd5KHILa97FeYxlTZe_qmdjnEKEWz_w&s" alt="" />
+          </div>
+
+          <button className="carrusel-btn">›</button>
+        </div>
+      </div>
+
+      {/* FOOTER */}
+      <footer className="footer">
+        <div className="footer-links">
+          <a>Privacidad</a>
+          <a>Condiciones</a>
+          <a>Ayuda</a>
+          <a>Idioma</a>
+        </div>
+
+        <p className="footer-copy">© 2025 MiniWattpad</p>
+      </footer>
     </div>
   );
 }
