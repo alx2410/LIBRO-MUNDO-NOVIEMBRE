@@ -1,0 +1,222 @@
+/* === GLOBAL === */
+.perfil-container {
+  width: 100%;
+  min-height: 100vh;
+  background: #fafafa;
+  padding-bottom: 50px;
+  font-family: "Inter", sans-serif;
+}
+
+/* =======================
+   HEADER A TODO LO ANCHO
+==========================*/
+.perfil-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 30px;
+  background: #ffffff;
+  border-bottom: 2px solid #ffe1d6;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
+.perfil-avatar {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #ff6b3d;
+  box-shadow: 0 4px 10px rgba(255,107,61,0.3);
+}
+
+.perfil-nombre {
+  font-size: 1.8rem;
+  margin-bottom: 5px;
+  color: #333;
+  font-weight: 700;
+}
+
+.perfil-username {
+  font-size: 1rem;
+  color: #777;
+}
+
+.perfil-stats {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.perfil-stats span {
+  background: #fff2ec;
+  padding: 6px 14px;
+  border-radius: 14px;
+  font-size: 0.9rem;
+  color: #ff6b3d;
+  border: 1px solid #ffd2c3;
+}
+
+/* ===========================
+   PESTAÑAS
+===========================*/
+.perfil-tabs {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  background: #fff;
+  border-bottom: 2px solid #ffe1d6;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+  margin-bottom: 25px;
+  position: sticky;
+  top: 145px;
+  z-index: 20;
+}
+
+.perfil-tabs button {
+  padding: 14px 40px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #777;
+  transition: 0.2s;
+}
+
+.perfil-tabs button.active {
+  color: #ff6b3d;
+  border-bottom: 3px solid #ff6b3d;
+}
+
+/* ===========================
+   INFO — GRID 1 / 2 / 2
+===========================*/
+
+.info-layout {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 25px;
+  padding: 25px 35px;
+}
+
+/* === COLUMNA 1 === */
+.info-col-1 {
+  background: #fff;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.info-col-1 h3 {
+  margin-top: 10px;
+  color: #ff6b3d;
+}
+
+.info-col-1 p {
+  color: #444;
+  margin-bottom: 15px;
+}
+
+/* === COLUMNA 2 (HISTORIAS) === */
+.info-col-2 {
+  background: #fff;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.historia-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff7f3;
+  padding: 18px;
+  border-radius: 18px;
+  margin-bottom: 18px;
+  border: 1px solid #ffd2c3;
+  transition: 0.2s;
+}
+
+.historia-card:hover {
+  transform: scale(1.01);
+}
+
+.historia-content {
+  width: 70%;
+}
+
+.historia-content h4 {
+  margin: 0;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.historia-content p {
+  margin-top: 6px;
+  color: #555;
+}
+
+.historia-portada {
+  width: 110px;
+  height: 150px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+/* ===========================
+   MURO
+===========================*/
+.muro {
+  padding: 25px 35px;
+}
+
+.muro-publicar {
+  background: #fff;
+  padding: 20px;
+  border-radius: 16px;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.muro-publicar textarea {
+  width: 100%;
+  min-height: 90px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #ffd2c3;
+  resize: none;
+  outline: none;
+}
+
+.muro-publicar button {
+  margin-top: 12px;
+  padding: 10px 20px;
+  background: #ff6b3d;
+  color: white;
+  border: none;
+  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.muro-post {
+  display: flex;
+  gap: 15px;
+  padding: 20px;
+  background: white;
+  border-radius: 16px;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.post-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+}
