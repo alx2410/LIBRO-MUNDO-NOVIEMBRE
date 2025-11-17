@@ -1,3 +1,4 @@
+// src/pages/Comunidad.jsx
 import { useEffect, useState } from "react";
 import {
   collection,
@@ -68,40 +69,39 @@ export default function Comunidad() {
   const [posts, setPosts] = useState([]);
   const [titulo, setTitulo] = useState("");
   const [rating, setRating] = useState(0);
+  const [comentarioPrincipal, setComentarioPrincipal] = useState("");
   const user = "MiUsuario";
 
   useEffect(() => {
     const q = query(collection(db, "posts"), orderBy("fecha", "desc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const postsData = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      const postsData = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       setPosts(postsData);
     });
-
     return () => unsubscribe();
   }, []);
 
   const handlePublicar = async () => {
-    if (!titulo && rating === 0) return;
+    if (!titulo || rating === 0 || !comentarioPrincipal) return;
 
     await addDoc(collection(db, "posts"), {
       titulo,
       rating,
+      comentarioPrincipal,
       autor: user,
       fecha: serverTimestamp(),
     });
 
     setTitulo("");
     setRating(0);
+    setComentarioPrincipal("");
   };
 
   return (
     <div className="comunidad-container">
       <h1 className="comunidad-titulo">Comunidad</h1>
 
-      {/* === Formulario === */}
+      {/* Formulario nuevo post */}
       <div className="formulario-post">
         <input
           type="text"
@@ -112,30 +112,38 @@ export default function Comunidad() {
         />
 
         <p className="mb-2">Puntaje:</p>
-        <StarRating totalStars={5} onRating={(value) => setRating(value)} />
+        <StarRating totalStars={5} onRating={(value) => setRating(value)} value={rating} />
+
+        <textarea
+          placeholder="Escribe tu opinión ..."
+          className="w-full p-2 mt-3 rounded comentario-input"
+          rows="3"
+          value={comentarioPrincipal}
+          onChange={(e) => setComentarioPrincipal(e.target.value)}
+        />
 
         <button onClick={handlePublicar} className="btn-publicar mt-3">
           Publicar
         </button>
       </div>
 
-      {/* === Lista de Posts === */}
+      {/* Lista de posts */}
       <div>
         {posts.map((post) => (
           <div key={post.id} className="post-card">
             <h2 className="post-titulo">{post.titulo}</h2>
 
             <div className="rating-mostrar">
-              <StarRating totalStars={5} onRating={() => {}} />
+              <StarRating totalStars={5} value={post.rating} readOnly />
               <span>({post.rating}★)</span>
             </div>
+
+            <p className="mt-2 text-gray-700">{post.comentarioPrincipal}</p>
 
             <div className="post-info">
               <span>Por: {post.autor}</span>
               <span>
-                {post.fecha
-                  ? new Date(post.fecha.seconds * 1000).toLocaleDateString()
-                  : ""}
+                {post.fecha ? new Date(post.fecha.seconds * 1000).toLocaleDateString() : ""}
               </span>
             </div>
 
@@ -147,7 +155,7 @@ export default function Comunidad() {
   );
 }
 
-/* === Comentarios === */
+/* Comentarios secundarios */
 function Comentarios({ postId, user }) {
   const [comentarios, setComentarios] = useState([]);
   const [nuevoComentario, setNuevoComentario] = useState("");
@@ -158,8 +166,7 @@ function Comentarios({ postId, user }) {
       orderBy("fecha", "asc")
     );
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      setComentarios(data);
+      setComentarios(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
     });
     return () => unsubscribe();
   }, [postId]);
@@ -176,15 +183,11 @@ function Comentarios({ postId, user }) {
 
   return (
     <div>
-      {/* Comentarios */}
-      <div className="mb-2">
-        {comentarios.map((c) => (
-          <Comentario key={c.id} comentario={c} postId={postId} user={user} />
-        ))}
-      </div>
+      {comentarios.map((c) => (
+        <Comentario key={c.id} comentario={c} postId={postId} user={user} />
+      ))}
 
-      {/* Input comentar */}
-      <div className="flex gap-2">
+      <div className="flex gap-2 mt-2">
         <input
           type="text"
           placeholder="Escribe un comentario..."
@@ -192,7 +195,6 @@ function Comentarios({ postId, user }) {
           value={nuevoComentario}
           onChange={(e) => setNuevoComentario(e.target.value)}
         />
-
         <button onClick={handlePublicarComentario} className="btn-comentar">
           Comentar
         </button>

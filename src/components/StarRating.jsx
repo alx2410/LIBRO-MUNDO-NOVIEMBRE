@@ -1,33 +1,34 @@
 // src/components/StarRating.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-export function StarRating({ totalStars = 5, onRating }) {
+export function StarRating({ totalStars = 5, onRating, value = 0, readOnly = false }) {
   const [hovered, setHovered] = useState(0);
-  const [selected, setSelected] = useState(0);
+  const [selected, setSelected] = useState(value);
 
-  const handleClick = (value) => {
+  // Mantener rating externo actualizado
+  useEffect(() => {
     setSelected(value);
-    if (onRating) onRating(value);
+  }, [value]);
+
+  const handleClick = (val) => {
+    if (readOnly) return;
+    setSelected(val);
+    if (onRating) onRating(val);
   };
 
   return (
-    <div style={{ display: "flex", gap: "8px", cursor: "pointer" }}>
+    <div className="star-rating-container">
       {[...Array(totalStars)].map((_, index) => {
         const starValue = index + 1;
-
         return (
           <span
             key={index}
+            className="estrella"
             onClick={() => handleClick(starValue)}
-            onMouseEnter={() => setHovered(starValue)}
-            onMouseLeave={() => setHovered(0)}
+            onMouseEnter={() => !readOnly && setHovered(starValue)}
+            onMouseLeave={() => !readOnly && setHovered(0)}
             style={{
-              fontSize: "32px",
-              color:
-                starValue <= (hovered || selected)
-                  ? "#FFD700" // ⭐ amarilla
-                  : "#ccc",   // gris
-              transition: "0.2s",
+              color: starValue <= (hovered || selected) ? "#FFD700" : "#ccc",
             }}
           >
             ★
