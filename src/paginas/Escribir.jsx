@@ -1,17 +1,74 @@
 import { useState, useRef } from "react";
-import VistaPrevia from  "../components/VistaPrevia.jsx";
-
-
-
+import VistaPrevia from "../components/VistaPrevia.jsx";
+import { db, storage } from "../firebase/config";
+import { doc, setDoc } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { useAuth } from "../context/AuthContext";
 
 export default function Escribir() {
   const [titulo, setTitulo] = useState("");
   const [genero, setGenero] = useState("");
   const [portada, setPortada] = useState(null);
+  const [filePortada, setFilePortada] = useState(null); // archivo real
   const [contenido, setContenido] = useState("");
   const [permitirCalificacion, setPermitirCalificacion] = useState(true);
   const textareaRef = useRef(null);
 
+  const { user } = useAuth();
+
+  // === PUBLICAR HISTORIA (Firebase) ===
+  const publicarHistoria = async (e) => {
+    e.preventDefault();
+
+    if (!user) {
+      alert("Debes iniciar sesión para publicar una historia.");
+      return;
+    }
+
+    if (!titulo.trim() || !genero || !contenido.trim()) {
+      alert("Por favor completa todos los campos obligatorios.");
+      return;
+    }
+
+    try {
+      // 1️⃣ Subir portada si existe
+      let portadaURL = "";
+      if (filePortada instanceof File) {
+        const storageRef = ref(storage, `historias/${user.uid}/${Date.now()}`);
+        await uploadBytes(storageRef, filePortada);
+        portadaURL = await getDownloadURL(storageRef);
+      }
+
+      // 2️⃣ Crear ID único
+      const id = crypto.randomUUID();
+
+      // 3️⃣ Guardar historia en Firestore
+      await setDoc(doc(db, "historias", id), {
+        id,
+        autorId: user.uid,
+        autorNombre: user.username || user.email,
+        titulo,
+        genero,
+        contenido,
+        portada: portadaURL,
+        permitirCalificacion,
+        createdAt: new Date(),
+      });
+
+      alert("Historia publicada correctamente.");
+
+      // 4️⃣ Reset form
+      setTitulo("");
+      setGenero("");
+      setContenido("");
+      setPortada(null);
+      setFilePortada(null);
+      setPermitirCalificacion(true);
+    } catch (error) {
+      console.error(error);
+      alert("Error al publicar historia.");
+    }
+  };
 
   // === FORMATO DE TEXTO ===
   const aplicarFormato = (formato) => {
@@ -20,9 +77,7 @@ export default function Escribir() {
     const fin = textarea.selectionEnd;
     const textoSeleccionado = contenido.substring(inicio, fin);
 
-
     let nuevoTexto = contenido;
-
 
     if (formato === "bold") {
       nuevoTexto =
@@ -41,45 +96,24 @@ export default function Escribir() {
         contenido.substring(fin);
     }
 
-
     setContenido(nuevoTexto);
     setTimeout(() => textarea.focus(), 0);
   };
 
-
-  // === SUBIR PORTADA ===
+  // === SUBIR PORTADA PREVIEW ===
   const manejarPortada = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setFilePortada(file);
       const url = URL.createObjectURL(file);
       setPortada(url);
     }
   };
 
-
-  // === PUBLICAR ===
-  const publicarHistoria = (e) => {
-    e.preventDefault();
-    if (!titulo.trim() || !genero || !contenido.trim()) {
-      alert("Por favor completa todos los campos obligatorios.");
-      return;
-    }
-
-
-    alert("📚 Historia publicada correctamente (simulación).");
-    setTitulo("");
-    setGenero("");
-    setContenido("");
-    setPortada(null);
-    setPermitirCalificacion(true);
-  };
-
-
   return (
     <div className="escribir-container">
       <div className="escribir-card">
         <h2>✍️ Escribir nueva historia</h2>
-
 
         <form onSubmit={publicarHistoria}>
           {/* === TÍTULO === */}
@@ -94,7 +128,6 @@ export default function Escribir() {
               required
             />
           </div>
-
 
           {/* === GÉNERO === */}
           <div>
@@ -117,7 +150,6 @@ export default function Escribir() {
             </select>
           </div>
 
-
           {/* === PORTADA === */}
           <div>
             <label htmlFor="portada">Portada</label>
@@ -136,7 +168,6 @@ export default function Escribir() {
             )}
           </div>
 
-
           {/* === BOTONES DE FORMATO === */}
           <div className="format-buttons">
             <button type="button" onClick={() => aplicarFormato("bold")}>
@@ -149,7 +180,6 @@ export default function Escribir() {
               <u>U</u>
             </button>
           </div>
-
 
           {/* === CONTENIDO === */}
           <div>
@@ -164,7 +194,6 @@ export default function Escribir() {
             />
           </div>
 
-
           {/* === OPCIÓN DE CALIFICACIÓN === */}
           <div className="checkbox-calificacion">
             <input
@@ -178,18 +207,15 @@ export default function Escribir() {
             </label>
           </div>
 
-
           {/* === BOTÓN PUBLICAR === */}
           <button type="submit" className="boton-publicar">
             Publicar historia
           </button>
         </form>
 
-
         {/* === VISTA PREVIA === */}
         <div className="vista-previa">
           <h3>📖 Vista previa</h3>
-
 
           {portada && (
             <img
@@ -203,7 +229,6 @@ export default function Escribir() {
             {genero ? `Género: ${genero}` : "Sin género seleccionado"}
           </p>
 
-
           <div
             style={{ marginTop: "10px", lineHeight: "1.6" }}
             dangerouslySetInnerHTML={{
@@ -213,7 +238,6 @@ export default function Escribir() {
                 .replace(/<u>(.*?)<\/u>/g, "<u>$1</u>"),
             }}
           />
-
 
           <p style={{ marginTop: "15px", fontSize: "0.95rem" }}>
             {permitirCalificacion
@@ -225,18 +249,3 @@ export default function Escribir() {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

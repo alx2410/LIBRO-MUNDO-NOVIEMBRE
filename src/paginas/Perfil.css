@@ -1,10 +1,8 @@
 /* === GLOBAL === */
 .perfil-container {
+  display: flex !important;
+  flex-direction: column !important;
   width: 100%;
-  min-height: 100vh;
-  background: #fafafa;
-  padding-bottom: 50px;
-  font-family: "Inter", sans-serif;
 }
 
 /* =======================

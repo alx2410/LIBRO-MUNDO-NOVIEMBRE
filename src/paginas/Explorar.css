@@ -1,0 +1,130 @@
+/* Explorar.css */
+.explorar-container {
+  font-family: "Poppins", sans-serif;
+  background: linear-gradient(180deg, #fff8f7, #fff);
+  color: #222;
+  padding: 50px 20px;
+  min-height: 100vh;
+}
+
+/* === TÍTULO PRINCIPAL === */
+.explorar-container h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  background: linear-gradient(90deg, #ff6b6b, #ff8c42);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
+}
+
+.explorar-container p {
+  font-size: 1.2rem;
+  color: #555;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+/* === FILTRO DE GÉNERO === */
+.filtro-genero {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 40px;
+}
+
+.filtro-genero select {
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid #ff8c42;
+  background-color: #fff;
+  color: #222;
+  font-weight: 500;
+  outline: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.filtro-genero select:hover {
+  border-color: #ff6b6b;
+}
+
+/* === GRID DE LIBROS === */
+.grid-libros {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 25px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* === TARJETA DE LIBRO === */
+.libro-card {
+  background-color: #fff;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+
+.libro-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.libro-card img {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+}
+
+.libro-card .info-libro {
+  padding: 12px;
+  text-align: left;
+}
+
+.libro-card .info-libro h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #222;
+}
+
+.libro-card .info-libro p {
+  font-size: 0.9rem;
+  color: #555;
+  margin: 2px 0;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .explorar-container {
+    padding: 30px 15px;
+  }
+
+  .explorar-container h1 {
+    font-size: 2rem;
+  }
+
+  .libro-card img {
+    height: 220px;
+  }
+}
+
+@media (max-width: 480px) {
+  .grid-libros {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+  }
+
+  .libro-card img {
+    height: 180px;
+  }
+
+  .filtro-genero {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
