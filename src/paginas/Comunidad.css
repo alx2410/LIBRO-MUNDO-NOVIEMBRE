@@ -26,6 +26,10 @@
   background: #ffffff;
   border-radius: 18px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
 }
 
 .formulario-post input,
@@ -34,6 +38,7 @@
   outline: none;
 }
 
+/* Botón publicar */
 .btn-publicar {
   background: linear-gradient(90deg, #ff8c42, #ff6b6b);
   color: white;
@@ -103,27 +108,47 @@
   margin: 5px 0;
 }
 
-/* Botones */
-.btn-edit {
-  background-color: #ffd37a;
+/* Contenedor de botones de comentario */
+.botones-comentario {
+  display: flex;
+  justify-content: flex-start; /* izquierda, puedes cambiar a center */
+  gap: 12px;
+  margin-top: 8px;
+}
+
+/* Botones editar/borrar */
+.btn-edit,
+.btn-delete {
   padding: 4px 10px;
   font-size: 0.8rem;
   border-radius: 6px;
   cursor: pointer;
+  display: inline-block;
+}
+
+.btn-edit {
+  background-color: #ffd37a;
 }
 
 .btn-delete {
   background-color: #ff6b6b;
-  padding: 4px 10px;
-  font-size: 0.8rem;
-  border-radius: 6px;
   color: white;
-  cursor: pointer;
 }
 
+/* Input comentario y textarea */
 .comentario-input {
   border: 2px solid #ffd2c5;
   outline: none;
+  padding: 10px;
+  border-radius: 12px;
+  width: 100%;
+  resize: vertical;
+  transition: border 0.2s;
+}
+
+.comentario-input:focus {
+  border-color: #ff8c42;
+  box-shadow: 0 0 8px rgba(255, 140, 66, 0.3);
 }
 
 /* Botón comentar */
@@ -145,10 +170,12 @@
   display: flex;
   gap: 8px;
   cursor: pointer;
+  justify-content: center;
+  margin-bottom: 10px;
 }
 
 .estrella {
-  font-size: 32px;
+  font-size: 40px; /* <-- aquí cambias el tamaño de las estrellas */
   transition: 0.2s;
 }
 

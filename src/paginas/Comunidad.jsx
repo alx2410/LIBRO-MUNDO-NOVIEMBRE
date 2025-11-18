@@ -12,10 +12,13 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import { db } from "../firebase/config";
+import { useAuth } from "../context/AuthContext";
 import { StarRating } from "../components/StarRating";
 import "./Comunidad.css";
 
-/* === Componente Comentario === */
+/* ============================
+   COMPONENTE COMENTARIO
+=============================== */
 function Comentario({ comentario, postId, user }) {
   const [editando, setEditando] = useState(false);
   const [nuevoTexto, setNuevoTexto] = useState(comentario.texto);
@@ -33,12 +36,12 @@ function Comentario({ comentario, postId, user }) {
 
   return (
     <div className="comentario-card">
-      <p><strong>{comentario.autor}</strong></p>
+      <p><strong>{comentario.autorNombre}</strong></p>
 
       {editando ? (
         <>
           <textarea
-            className="w-full p-2 rounded comentario-input"
+            className="comentario-input"
             value={nuevoTexto}
             onChange={(e) => setNuevoTexto(e.target.value)}
           />
@@ -50,8 +53,8 @@ function Comentario({ comentario, postId, user }) {
         <p>{comentario.texto}</p>
       )}
 
-      {user === comentario.autor && !editando && (
-        <div className="mt-1 flex gap-2">
+      {user?.uid === comentario.autorUid && !editando && (
+        <div className="botones-comentario">
           <button onClick={() => setEditando(true)} className="btn-edit">
             Editar
           </button>
@@ -64,13 +67,15 @@ function Comentario({ comentario, postId, user }) {
   );
 }
 
-/* === Página Comunidad === */
+/* ============================
+   COMPONENTE PRINCIPAL
+=============================== */
 export default function Comunidad() {
+  const { user } = useAuth();
   const [posts, setPosts] = useState([]);
   const [titulo, setTitulo] = useState("");
   const [rating, setRating] = useState(0);
   const [comentarioPrincipal, setComentarioPrincipal] = useState("");
-  const user = "MiUsuario";
 
   useEffect(() => {
     const q = query(collection(db, "posts"), orderBy("fecha", "desc"));
@@ -83,12 +88,14 @@ export default function Comunidad() {
 
   const handlePublicar = async () => {
     if (!titulo || rating === 0 || !comentarioPrincipal) return;
+    if (!user) return alert("Debes iniciar sesión.");
 
     await addDoc(collection(db, "posts"), {
       titulo,
       rating,
       comentarioPrincipal,
-      autor: user,
+      autorNombre: user.username,
+      autorUid: user.uid,
       fecha: serverTimestamp(),
     });
 
@@ -106,23 +113,27 @@ export default function Comunidad() {
         <input
           type="text"
           placeholder="Título del libro"
-          className="w-full p-2 mb-3 rounded"
+          className="w-full p-2 rounded"
           value={titulo}
           onChange={(e) => setTitulo(e.target.value)}
         />
 
-        <p className="mb-2">Puntaje:</p>
-        <StarRating totalStars={5} onRating={(value) => setRating(value)} value={rating} />
+        <p>Puntaje:</p>
+        <StarRating
+          totalStars={5}
+          onRating={(value) => setRating(value)}
+          value={rating}
+        />
 
         <textarea
           placeholder="Escribe tu opinión ..."
-          className="w-full p-2 mt-3 rounded comentario-input"
+          className="comentario-input"
           rows="3"
           value={comentarioPrincipal}
           onChange={(e) => setComentarioPrincipal(e.target.value)}
         />
 
-        <button onClick={handlePublicar} className="btn-publicar mt-3">
+        <button onClick={handlePublicar} className="btn-publicar">
           Publicar
         </button>
       </div>
@@ -138,10 +149,10 @@ export default function Comunidad() {
               <span>({post.rating}★)</span>
             </div>
 
-            <p className="mt-2 text-gray-700">{post.comentarioPrincipal}</p>
+            <p className="mt-2">{post.comentarioPrincipal}</p>
 
             <div className="post-info">
-              <span>Por: {post.autor}</span>
+              <span>Por: {post.autorNombre}</span>
               <span>
                 {post.fecha ? new Date(post.fecha.seconds * 1000).toLocaleDateString() : ""}
               </span>
@@ -155,7 +166,9 @@ export default function Comunidad() {
   );
 }
 
-/* Comentarios secundarios */
+/* ============================
+   COMENTARIOS SECUNDARIOS
+=============================== */
 function Comentarios({ postId, user }) {
   const [comentarios, setComentarios] = useState([]);
   const [nuevoComentario, setNuevoComentario] = useState("");
@@ -165,19 +178,25 @@ function Comentarios({ postId, user }) {
       collection(db, "posts", postId, "comentarios"),
       orderBy("fecha", "asc")
     );
+
     const unsubscribe = onSnapshot(q, (snapshot) => {
       setComentarios(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
     });
+
     return () => unsubscribe();
   }, [postId]);
 
   const handlePublicarComentario = async () => {
     if (!nuevoComentario) return;
+    if (!user) return alert("Debes iniciar sesión para comentar.");
+
     await addDoc(collection(db, "posts", postId, "comentarios"), {
       texto: nuevoComentario,
-      autor: user,
+      autorNombre: user.username,
+      autorUid: user.uid,
       fecha: serverTimestamp(),
     });
+
     setNuevoComentario("");
   };
 
@@ -191,7 +210,7 @@ function Comentarios({ postId, user }) {
         <input
           type="text"
           placeholder="Escribe un comentario..."
-          className="w-full p-2 rounded comentario-input"
+          className="comentario-input"
           value={nuevoComentario}
           onChange={(e) => setNuevoComentario(e.target.value)}
         />
