@@ -1,9 +1,8 @@
 // src/componentes/Perfil.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import "./Perfil.css";
 
-// Datos falsos para DEMO (luego los reemplazas con Firebase)
 const mockHistorias = [
   {
     id: 1,
@@ -41,51 +40,128 @@ const mockSeguidores = [
 ];
 
 export default function Perfil() {
-  const { user } = useAuth();
+
+  const { user, updateProfileData, getMuro, publicarPost } = useAuth();
   const [tab, setTab] = useState("info");
-  const [muroPosts, setMuroPosts] = useState([]);
+
+  // ===== MURO =====
+  const [posts, setPosts] = useState([]);
   const [nuevoPost, setNuevoPost] = useState("");
 
-  if (!user) {
-    return <p>Debes iniciar sesión para ver tu perfil.</p>;
-  }
+  // ===== EDITAR PERFIL =====
+  const [editMode, setEditMode] = useState(false);
+  const [displayName, setDisplayName] = useState(user.displayName || "");
+  const [bio, setBio] = useState(user.bio || "");
+  const [file, setFile] = useState(null);
+  const [preview, setPreview] = useState(user.photoURL);
 
-  const publicarEnMuro = () => {
+  // === CARGAR MURO DESDE FIRESTORE ===
+  useEffect(() => {
+    if (!user) return;
+
+    async function cargarMuro() {
+      const data = await getMuro(user.uid);
+      setPosts(data);
+    }
+
+    cargarMuro();
+  }, [user, getMuro]);
+
+  // Cambiar foto
+  const handleFileChange = (e) => {
+    const img = e.target.files[0];
+    if (img) {
+      setFile(img);
+      setPreview(URL.createObjectURL(img));
+    }
+  };
+
+  // Guardar perfil
+  const guardarCambios = async () => {
+    try {
+      await updateProfileData({
+        displayName,
+        bio,
+        file,
+      });
+
+      alert("Perfil actualizado ✔");
+      setEditMode(false);
+    } catch (error) {
+      console.error(error);
+      alert("Error al actualizar perfil");
+    }
+  };
+
+  // Publicar en muro
+  const publicarEnMuro = async () => {
     if (!nuevoPost.trim()) return;
 
-    const nuevo = {
-      id: Date.now(),
-      autor: user.displayName,
-      foto: user.photoURL,
-      texto: nuevoPost,
-      fecha: new Date().toLocaleString(),
-    };
+    const nuevo = await publicarPost(nuevoPost);
 
-    setMuroPosts([nuevo, ...muroPosts]);
+    setPosts((prev) => [nuevo, ...prev]);
     setNuevoPost("");
   };
 
   return (
     <div className="perfil-container">
-      {/* ENCABEZADO */}
+
+      {/* ===================== ENCABEZADO ===================== */}
       <div className="perfil-header">
-        <img src={user.photoURL} alt="avatar" className="perfil-avatar" />
+
+        {/* FOTO */}
+        <img src={preview} alt="avatar" className="perfil-avatar" />
 
         <div>
-          <h2 className="perfil-nombre">{user.displayName}</h2>
-          <p className="perfil-username">@{user.email.split("@")[0]}</p>
+          {!editMode ? (
+            <>
+              <h2 className="perfil-nombre">{user.displayName}</h2>
+              <p className="perfil-username">@{user.email.split("@")[0]}</p>
 
-          {/* Estadísticas */}
-          <div className="perfil-stats">
-            <span><strong>Historias:</strong> 2</span>
-            <span><strong>Listas:</strong> 1</span>
-            <span><strong>Seguidores:</strong> 120</span>
-            <span><strong>Siguiendo:</strong> 45</span>
-          </div>
+              <div className="perfil-stats">
+                <span><strong>Historias:</strong> 2</span>
+                <span><strong>Listas:</strong> 1</span>
+                <span><strong>Seguidores:</strong> 120</span>
+                <span><strong>Siguiendo:</strong> 45</span>
+              </div>
+
+              <button className="btn-editar" onClick={() => setEditMode(true)}>
+                ✏ Editar perfil
+              </button>
+            </>
+          ) : (
+            <>
+              <input
+                className="input-text"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+              />
+
+              <textarea
+                className="textarea-bio"
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                placeholder="Tu biografía..."
+              ></textarea>
+
+              <label className="file-label">
+                Cambiar foto
+                <input type="file" accept="image/*" onChange={handleFileChange} />
+              </label>
+
+              <button className="btn-guardar" onClick={guardarCambios}>
+                Guardar cambios
+              </button>
+
+              <button className="btn-cancelar" onClick={() => setEditMode(false)}>
+                Cancelar
+              </button>
+            </>
+          )}
         </div>
       </div>
 
-      {/* PESTAÑAS */}
+      {/* ===================== PESTAÑAS ===================== */}
       <div className="perfil-tabs">
         <button onClick={() => setTab("info")} className={tab === "info" ? "active" : ""}>
           INFO
@@ -95,31 +171,28 @@ export default function Perfil() {
           MURO
         </button>
 
-        <button onClick={() => setTab("seguidores")} className={tab === "seguidores" ? "active" : ""}>
+        <button
+          onClick={() => setTab("seguidores")}
+          className={tab === "seguidores" ? "active" : ""}
+        >
           SEGUIDORES
         </button>
       </div>
 
-      {/* ================= INFO ================= */}
+      {/* ===================== INFO ===================== */}
       {tab === "info" && (
         <div className="info-layout">
-          {/* Columna 1 */}
           <div className="info-col-1">
             <h3>Biografía</h3>
-            <p>{user.bio || "Aún no has escrito tu biografía."}</p>
+            <p>{bio || "Aún no has escrito tu biografía."}</p>
 
             <h3>Siguiendo</h3>
             <p>Próximamente...</p>
 
             <h3>Último post</h3>
-            {muroPosts[0] ? (
-              <p>{muroPosts[0].texto}</p>
-            ) : (
-              <p>No has publicado aún.</p>
-            )}
+            {posts[0] ? <p>{posts[0].texto}</p> : <p>No has publicado aún.</p>}
           </div>
 
-          {/* Columnas 2 y 3 */}
           <div className="info-col-2">
             <h3>Historias de {user.displayName}</h3>
 
@@ -129,7 +202,6 @@ export default function Perfil() {
                   <h4>{h.titulo}</h4>
                   <p>{h.descripcion}</p>
                 </div>
-
                 <img src={h.portada} alt="portada" className="historia-portada" />
               </div>
             ))}
@@ -137,43 +209,51 @@ export default function Perfil() {
         </div>
       )}
 
-      {/* ================= MURO ================= */}
+      {/* ===================== MURO ===================== */}
       {tab === "muro" && (
         <div className="muro">
-          {/* caja post */}
           <div className="muro-publicar">
             <textarea
               value={nuevoPost}
               onChange={(e) => setNuevoPost(e.target.value)}
               placeholder="Escribe algo en tu muro..."
             ></textarea>
-
             <button onClick={publicarEnMuro}>Publicar</button>
           </div>
 
-          {/* posts */}
-          {muroPosts.map((post) => (
-            <div key={post.id} className="muro-post">
-              <img src={post.foto} className="post-avatar" />
-              <div>
-                <p className="post-autor">{post.autor}</p>
-                <p>{post.texto}</p>
-                <span className="post-fecha">{post.fecha}</span>
-              </div>
-            </div>
-          ))}
+          {posts
+            .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+            .map((post) => (
+              <div key={post.id} className="muro-post">
+  <img src={post.foto} className="post-avatar" />
 
-          {muroPosts.length === 0 && <p>No hay publicaciones aún.</p>}
+  <div className="post-contenido">
+    <p className="post-autor">{post.autor}</p>
+    <p className="post-texto">{post.texto}</p>
+    <span className="post-fecha">
+      {new Date(post.fecha).toLocaleString("es-ES", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      })}
+    </span>
+  </div>
+</div>
+
+            ))}
+
+          {posts.length === 0 && <p>No hay publicaciones aún.</p>}
         </div>
       )}
 
-      {/* ================= SEGUIDORES ================= */}
+      {/* ===================== SEGUIDORES ===================== */}
       {tab === "seguidores" && (
         <div className="seguidores-grid">
           {mockSeguidores.map((seg) => (
             <div key={seg.id} className="seguidor-card">
               <img src={seg.foto} className="seguidor-avatar" />
-
               <h4>{seg.nickname}</h4>
               <p className="seg-username">{seg.usuario}</p>
 

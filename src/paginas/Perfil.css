@@ -1,25 +1,29 @@
-/* === GLOBAL === */
+/* ======================================================
+   GLOBAL
+====================================================== */
 .perfil-container {
   display: flex !important;
   flex-direction: column !important;
   width: 100%;
 }
 
-/* =======================
-   HEADER A TODO LO ANCHO
-==========================*/
+/* ======================================================
+   HEADER — SIEMPRE ARRIBA A TODO EL ANCHO
+====================================================== */
 .perfil-header {
   width: 100%;
   display: flex;
+  flex-direction: row; /* 👈 evita columnas */
   align-items: center;
   gap: 20px;
   padding: 30px;
   background: #ffffff;
   border-bottom: 2px solid #ffe1d6;
   box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-  position: sticky;
+  /* position: sticky;
   top: 0;
-  z-index: 30;
+  z-index: 30; */
+  flex-wrap: nowrap; /* 👈 protege de romper columna */
 }
 
 .perfil-avatar {
@@ -28,7 +32,6 @@
   border-radius: 50%;
   object-fit: cover;
   border: 3px solid #ff6b3d;
-  box-shadow: 0 4px 10px rgba(255,107,61,0.3);
 }
 
 .perfil-nombre {
@@ -59,9 +62,9 @@
   border: 1px solid #ffd2c3;
 }
 
-/* ===========================
-   PESTAÑAS
-===========================*/
+/* ======================================================
+   PESTAÑAS — SIEMPRE EN UNA FILA
+====================================================== */
 .perfil-tabs {
   display: flex;
   width: 100%;
@@ -70,9 +73,10 @@
   border-bottom: 2px solid #ffe1d6;
   box-shadow: 0 2px 5px rgba(0,0,0,0.04);
   margin-bottom: 25px;
-  position: sticky;
-  top: 145px;
-  z-index: 20;
+  /* position: sticky;
+  top: 140px; 
+  z-index: 20; */
+  flex-wrap: nowrap; /* 👈 evita columnas */
 }
 
 .perfil-tabs button {
@@ -84,6 +88,7 @@
   font-weight: 600;
   color: #777;
   transition: 0.2s;
+  white-space: nowrap; /* 👈 no se parten */
 }
 
 .perfil-tabs button.active {
@@ -91,10 +96,9 @@
   border-bottom: 3px solid #ff6b3d;
 }
 
-/* ===========================
-   INFO — GRID 1 / 2 / 2
-===========================*/
-
+/* ======================================================
+   INFO — GRID
+====================================================== */
 .info-layout {
   display: grid;
   grid-template-columns: 1fr 2fr;
@@ -102,12 +106,14 @@
   padding: 25px 35px;
 }
 
-/* === COLUMNA 1 === */
-.info-col-1 {
+/* COLUMNA 1 */
+.info-col-1,
+.info-col-2 {
   background: #fff;
   padding: 20px;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  color: rgb(65, 77, 77);
 }
 
 .info-col-1 h3 {
@@ -115,22 +121,11 @@
   color: #ff6b3d;
 }
 
-.info-col-1 p {
-  color: #444;
-  margin-bottom: 15px;
-}
-
-/* === COLUMNA 2 (HISTORIAS) === */
-.info-col-2 {
-  background: #fff;
-  padding: 20px;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-}
-
+/* COLUMNA 2 HISTORIAS */
 .historia-card {
   display: flex;
   justify-content: space-between;
+  gap: 15px;
   align-items: center;
   background: #fff7f3;
   padding: 18px;
@@ -140,23 +135,8 @@
   transition: 0.2s;
 }
 
-.historia-card:hover {
-  transform: scale(1.01);
-}
-
 .historia-content {
   width: 70%;
-}
-
-.historia-content h4 {
-  margin: 0;
-  color: #333;
-  font-size: 1.2rem;
-}
-
-.historia-content p {
-  margin-top: 6px;
-  color: #555;
 }
 
 .historia-portada {
@@ -166,19 +146,22 @@
   object-fit: cover;
 }
 
-/* ===========================
+
+/* ======================================================
    MURO
-===========================*/
+====================================================== */
 .muro {
   padding: 25px 35px;
 }
 
-.muro-publicar {
+.muro-publicar,
+.muro-post {
   background: #fff;
   padding: 20px;
   border-radius: 16px;
   margin-bottom: 25px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  color: #6d6666;
 }
 
 .muro-publicar textarea {
@@ -187,29 +170,49 @@
   padding: 12px;
   border-radius: 12px;
   border: 1px solid #ffd2c3;
-  resize: none;
-  outline: none;
 }
 
-.muro-publicar button {
-  margin-top: 12px;
-  padding: 10px 20px;
-  background: #ff6b3d;
-  color: white;
-  border: none;
-  font-weight: 600;
-  border-radius: 12px;
-  cursor: pointer;
-}
 
+/* === POST INDIVIDUAL === */
 .muro-post {
   display: flex;
-  gap: 15px;
-  padding: 20px;
-  background: white;
-  border-radius: 16px;
-  margin-bottom: 15px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  gap: 12px;
+  background: #faf8ff;
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid #e8e0ff;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.post-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Nombre del autor */
+.post-autor {
+  font-weight: bold;
+  font-size: 1rem;
+  color: #6a00ff;
+  margin: 0;
+}
+
+/* Texto del mensaje */
+.post-texto {
+  font-size: 1.1rem;
+  color: #222;
+  margin: 6px 0;
+  line-height: 1.4;
+}
+
+/* Fecha del mensaje */
+.post-fecha {
+  font-size: 0.75rem;
+  color: #8a8a8a;
+  margin-top: 5px;
+  display: block;
 }
 
 .post-avatar {
@@ -217,4 +220,220 @@
   height: 60px;
   border-radius: 50%;
   object-fit: cover;
+}
+
+/* ======================================================
+   🔥 RESPONSIVIDAD REAL 🔥
+====================================================== */
+
+/* ========== TABLET (≤ 900px) ========== */
+@media (max-width: 900px) {
+
+  .perfil-header {
+    flex-wrap: wrap;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .perfil-tabs {
+    top: 120px;
+  }
+
+  .info-layout {
+    grid-template-columns: 1fr; /* 👈 pasa a 1 columna */
+  }
+
+  .historia-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .historia-content {
+    width: 100%;
+  }
+
+  .historia-portada {
+    width: 80%;
+    height: auto;
+  }
+}
+
+/* ========== MÓVIL (≤ 600px) ========== */
+@media (max-width: 600px) {
+
+  .perfil-header {
+    padding: 20px;
+    gap: 15px;
+  }
+
+  .perfil-avatar {
+    width: 90px;
+    height: 90px;
+  }
+
+  .perfil-nombre {
+    font-size: 1.4rem;
+  }
+
+  .perfil-tabs button {
+    padding: 12px 20px;
+    font-size: 0.9rem;
+  }
+
+  .perfil-tabs {
+    top: 100px; /* ajustado */
+    overflow-x: auto; /* 👈 barras si no entra */
+  }
+
+  .info-layout {
+    padding: 20px;
+  }
+
+  .muro {
+    padding: 20px;
+  }
+
+  .historia-portada {
+    width: 70%;
+  }
+}
+
+/* ========== MÓVIL PEQUEÑO (≤ 450px) ========== */
+@media (max-width: 450px) {
+
+  .perfil-tabs button {
+    padding: 10px 18px;
+  }
+
+  .historia-card {
+    padding: 15px;
+  }
+
+  .post-avatar {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+/* ======================================================
+   ✏ BOTÓN EDITAR PERFIL (MODO NORMAL)
+====================================================== */
+.btn-editar {
+  margin-top: 18px;
+  padding: 10px 20px;
+  background: #fff2ec;
+  border: 2px solid #ff6b3d;
+  color: #ff6b3d;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.btn-editar:hover {
+  background: #ff6b3d;
+  color: white;
+}
+
+/* ======================================================
+   ✨ MODO EDITAR PERFIL — Inputs, textarea, subir foto
+====================================================== */
+
+.input-text,
+.textarea-bio {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 15px;
+  background: #fff7f3;
+  border: 1px solid #ffd2c3;
+  border-radius: 14px;
+  margin-bottom: 14px;
+  color: #444;
+  transition: 0.25s ease;
+}
+
+.input-text:focus,
+.textarea-bio:focus {
+  background: #fff;
+  border-color: #ff6b3d;
+  box-shadow: 0 0 8px rgba(255, 107, 61, 0.35);
+  outline: none;
+}
+
+.textarea-bio {
+  min-height: 130px;
+  resize: vertical;
+}
+
+/* LABEL SUBIR FOTO */
+.file-label {
+
+  display: inline-block;
+  padding: 10px 16px;
+  background: #ffe1d6;
+  color: #c24f28;
+  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-bottom: 14px;
+  border: 1px solid #ffbca6;
+  transition: 0.25s;
+  margin-right: 10px;
+  
+}
+
+.file-label:hover {
+  background: #ffd2c3;
+}
+
+.file-label input[type="file"] {
+  display: none;
+}
+
+/* ======================================================
+   💾 BOTONES GUARDAR / CANCELAR
+====================================================== */
+
+.btn-guardar {
+  padding: 10px 20px;
+  background: #ff6b3d;
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.btn-guardar:hover {
+  background: #ff3f1e;
+  
+}
+
+.btn-cancelar {
+  padding: 10px 20px;
+  background: #fff7f3;
+  border: 2px solid #ffd2c3;
+  border-radius: 12px;
+  color: #666;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: 10px;
+  transition: 0.25s ease;
+}
+
+.btn-cancelar:hover {
+  background: #ffeae3;
+}
+
+/* ======================================================
+   📱 RESPONSIVE EDIT MODE
+====================================================== */
+
+@media (max-width: 600px) {
+  .btn-guardar,
+  .btn-cancelar {
+    width: 100%;
+    margin-bottom: 10px;
+  }
 }
