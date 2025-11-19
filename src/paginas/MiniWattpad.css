@@ -1,9 +1,15 @@
+body {
+  background-color: #fdc6b3; /* color naranja wattpad */
+  margin: 0;
+  padding: 0;
+}
+
 .inicio-container {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 80px 120px;
-  background: #fdf0e5;
+  background: #fdc6b3;
 }
 
 .inicio-texto {

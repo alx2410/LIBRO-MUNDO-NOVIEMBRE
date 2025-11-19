@@ -1,96 +1,53 @@
-.recomendacion-container {
-  max-width: 600px;
-  margin: 90px auto;
-  padding: 40px;
-  background: #fff8f3;
-  border-radius: 20px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-}
-
-.recomendacion-title {
-  font-size: 36px;
-  font-weight: 700;
-  color: #000;
-  margin-bottom: 25px;
-  text-align: center;
-}
-
-.recomendacion-form {
+.recomendacion-wrapper {
   display: flex;
-  flex-direction: column;
-  gap: 20px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 80px 100px;
 }
 
-.recomendacion-form label {
-  font-size: 16px;
-  font-weight: 600;
-  color: #333;
+.recomendacion-titulo {
+  flex: 1;
+  font-size: 48px;     /* antes 60px */
+  font-weight: 600;    /* antes 800 */
+  color: #000;
+  line-height: 1.1;
 }
 
-.recomendacion-form input,
-.recomendacion-form textarea {
-  width: 100%;
-  padding: 14px 16px;
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  font-size: 16px;
-  background: white;
-  transition: border 0.2s, box-shadow 0.2s;
+.recomendacion-sub {
+  margin-top: 10px;
+  font-size: 18px;
+  font-weight: 400;
+  color: #444;
+  opacity: 0.9;
 }
 
-.recomendacion-form input:focus,
-.recomendacion-form textarea:focus {
-  border-color: #ff8a4d;
-  box-shadow: 0 0 6px rgba(255, 138, 77, 0.4);
-  outline: none;
-}
 
-.recomendacion-form textarea {
-  resize: none;
-  height: 120px;
-}
-
-.recomendacion-btn {
-  background: #000;
-  color: white;
+.recomendacion-form-box button {
   padding: 14px;
+  background: #ff8a4d;
+  color: white;
   border: none;
-  border-radius: 14px;
+  border-radius: 25px;       /* antes 12px */
   font-size: 17px;
   cursor: pointer;
-  transition: opacity 0.25s;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  transition: transform 0.2s ease, opacity 0.25s;
 }
 
-.recomendacion-btn:hover {
-  opacity: 0.85;
+.recomendacion-form-box button:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
 }
 
 
-.recomendacion-container {
-  max-width: 600px;
-  margin: 90px auto;
-  padding: 40px 35px;
-  background: #fff8f3;
-  border-radius: 20px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-  text-align: center;
-}
-
-.recomendacion-container h3 {
-  font-size: 34px;
-  font-weight: 700;
-  color: #000;
-  margin-bottom: 25px;
-}
-
-.recomendacion-form {
+.recomendacion-form-box form {
   display: flex;
+  flex-direction: column;
   gap: 15px;
-  justify-content: center;
 }
 
-.recomendacion-form input {
-  flex: 1;
+.recomendacion-form-box input {
   padding: 14px 16px;
   border: 1px solid #ddd;
   border-radius: 12px;
@@ -99,14 +56,14 @@
   transition: border 0.2s, box-shadow 0.2s;
 }
 
-.recomendacion-form input:focus {
+.recomendacion-form-box input:focus {
   border-color: #ff8a4d;
   box-shadow: 0 0 6px rgba(255, 138, 77, 0.4);
   outline: none;
 }
 
-.recomendacion-form button {
-  padding: 14px 22px;
+.recomendacion-form-box button {
+  padding: 14px;
   background: #000;
   color: white;
   border: none;
@@ -116,18 +73,36 @@
   transition: opacity 0.25s;
 }
 
-.recomendacion-form button:hover {
+.recomendacion-form-box button:hover {
   opacity: 0.85;
 }
 
 .ok-msg {
   color: #008000;
-  margin-top: 18px;
+  margin-top: 10px;
   font-weight: 600;
 }
 
 .error-msg {
   color: #d00000;
-  margin-top: 18px;
+  margin-top: 10px;
   font-weight: 600;
+}
+
+/* RESPONSIVE, porque si no en móviles se rompe */
+@media (max-width: 900px) {
+  .recomendacion-wrapper {
+    flex-direction: column;
+    text-align: center;
+    padding: 40px 20px;
+  }
+
+  .recomendacion-titulo {
+    font-size: 40px;
+    margin-bottom: 30px;
+  }
+
+  .recomendacion-form-box {
+    width: 100%;
+  }
 }

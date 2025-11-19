@@ -9,7 +9,7 @@ import MiniWattpad from "./paginas/MiniWattpad";
 import Perfil from "./paginas/Perfil";
 
 import { LibrosProvider } from "./context/LibrosContext";
-import { AuthProvider } from "./context/AuthContext";
+
 
 
 
@@ -18,9 +18,8 @@ import "./App.css";
 
 export default function App() {
   return (
-    <AuthProvider>
+   
       <LibrosProvider>
-        <Router>
           <Navbar />
 
           <Routes>
@@ -31,8 +30,7 @@ export default function App() {
             <Route path="/biblioteca" element={<Biblioteca />} />
             <Route path="/miniwattpad" element={<MiniWattpad />} />
           </Routes>
-        </Router>
       </LibrosProvider>
-    </AuthProvider>
+    
   );
 }

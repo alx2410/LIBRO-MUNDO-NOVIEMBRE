@@ -24,22 +24,35 @@ export default function RecomendacionInicio() {
   };
 
   return (
-    <div className="recomendacion-container">
-      <h1>Recomienda <br />
+    <div className="recomendacion-wrapper">
+      <div>
+       <h1 className="recomendacion-titulo">
+        Recomienda <br />
         una historia</h1>
+        <p className="recomendacion-sub">
+      Tu opinión es importante para nosotros
+    </p>   
+      </div>
+    
+        
+        
+        
 
-      <form onSubmit={enviar} className="recomendacion-form">
-        <input
-          type="text"
-          placeholder="Escribe una recomendación..."
-          value={texto}
-          onChange={(e) => setTexto(e.target.value)}
-        />
-        <button type="submit">Enviar</button>
-      </form>
+      <div className="recomendacion-form-box">
+    <form onSubmit={enviar}>
+      <input
+        type="text"
+        placeholder="Escribe una recomendación..."
+        value={texto}
+        onChange={(e) => setTexto(e.target.value)}
+      />
 
-      {estado === "enviado" && <p className="ok-msg">Recomendación enviada</p>}
-      {estado === "error" && <p className="error-msg">Error al enviar</p>}
+      <button type="submit">Enviar</button>
+    </form>
+
+    {estado === "enviado" && <p className="ok-msg">Recomendación enviada</p>}
+    {estado === "error" && <p className="error-msg">Error al enviar</p>}
+  </div>
     </div>
   );
 }
