@@ -5,7 +5,7 @@
 body {
   margin: 0;
   font-family: "Poppins", sans-serif;
-  background-color: #aacedf;
+  background-color: #ffd6c4; /* rosado durazno suave */
   color: #222;
   scroll-behavior: smooth;
 }
@@ -39,24 +39,25 @@ nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 28px;
+  padding: 8px 20px;    /* más pequeño */
+  height: 65px;         /* controlamos el tamaño EXACTO */
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
   z-index: 1000;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;    /* prohibido envolver */
 }
 
+
 /* LOGO */
-nav h1 {
-  color: #000;
-  font-size: 1.6rem;
-  font-weight: 700;
-  margin: 0;
-  letter-spacing: 0.5px;
-  cursor: pointer;
-  transition: transform 0.2s ease;
+
+nav img.logo {
+  height: 80px;   /* cámbialo a 40px, 30px, lo que quieras */
+  width: auto;
+  object-fit: contain;
 }
+
+
 nav h1:hover {
   transform: scale(1.05);
 }
@@ -471,7 +472,7 @@ button:hover {
 
 .link {
   background: none;
-  color: #2563eb;
+  color: black;
   border: none;
   cursor: pointer;
   text-decoration: underline;

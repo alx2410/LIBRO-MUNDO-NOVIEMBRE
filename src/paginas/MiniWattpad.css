@@ -1,5 +1,5 @@
 body {
-  background: linear-gradient(180deg, #bed8e4, #fff);
+  background: linear-gradient(180deg, #ffe7db, #fff);
   margin: 0;
   padding: 0;
 }
@@ -14,7 +14,7 @@ body {
 
 
 .inicio-texto {
-  max-width: 520px;
+  max-width: 520px; 
 }
 
 .inicio-texto h1 {
