@@ -264,6 +264,25 @@ const yaLoSigo = async (miUid, uidObjetivo) => {
   return snap.exists();
 };
 
+// ============================================
+// 🟢 OBTENER LISTA DE SIGUIENDO
+// ============================================
+const obtenerSiguiendo = async (miUid) => {
+  const colRef = collection(db, "usuarios", miUid, "siguiendo");
+  const snap = await getDocs(colRef);
+  return snap.docs.map(d => d.id); // retorna array de UIDs
+};
+
+// ============================================
+// 🟢 OBTENER LISTA DE SEGUIDORES
+// ============================================
+const obtenerSeguidores = async (miUid) => {
+  const colRef = collection(db, "usuarios", miUid, "seguidores");
+  const snap = await getDocs(colRef);
+  return snap.docs.map(d => d.id); // retorna array de UIDs
+};
+
+
 
   // ============================================
   // 🔥 CONTEXTO FINAL
@@ -282,6 +301,8 @@ const yaLoSigo = async (miUid, uidObjetivo) => {
       seguirUsuario,
   dejarSeguirUsuario,
   yaLoSigo,
+  obtenerSiguiendo,   // <--- aquí
+    obtenerSeguidores, 
   };
 
   return (
