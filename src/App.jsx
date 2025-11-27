@@ -18,6 +18,7 @@ import AdminUsuarios from "./paginas/intranet/AdminUsuarios";
 import RutaProtegida from "./components/RutaProtegida";
 import RutaAdmin from "./components/RutaAdmin";
 
+
 import { LibrosProvider } from "./context/LibrosContext";
 
 import "./App.css";
@@ -35,9 +36,10 @@ export default function App() {
         <Route path="/explorar" element={<Explorar />} />
         <Route path="/comunidad" element={<Comunidad />} />
         <Route path="/escribir" element={<Escribir />} />
-        <Route path="/perfil" element={<Perfil />} />
+        <Route path="/perfil/:uid?" element={<Perfil />} />
         <Route path="/biblioteca" element={<Biblioteca />} />
         <Route path="/miniwattpad" element={<MiniWattpad />} />
+
 
         {/* RUTAS PROTEGIDAS: INTRANET */}
         <Route

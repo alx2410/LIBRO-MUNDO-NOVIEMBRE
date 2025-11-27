@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import "../styles/ZonaUsuario.css";
 
 export function ZonaUsuario ({ onAbrirLogin}){
     //VARIABLE PARA LA AUTENTICACION

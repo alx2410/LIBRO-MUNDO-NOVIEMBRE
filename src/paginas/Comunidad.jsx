@@ -1,4 +1,5 @@
 // src/pages/Comunidad.jsx
+import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
   collection,
@@ -36,7 +37,14 @@ function Comentario({ comentario, postId, user }) {
 
   return (
     <div className="comentario-card">
-      <p><strong>{comentario.autorNombre}</strong></p>
+      <p>
+  <strong>
+    <Link to={`/perfil/${comentario.autorUid}`} className="autor-link">
+      {comentario.autorNombre}
+    </Link>
+  </strong>
+</p>
+
 
       {editando ? (
         <>
@@ -152,7 +160,13 @@ export default function Comunidad() {
             <p className="mt-2">{post.comentarioPrincipal}</p>
 
             <div className="post-info">
-              <span>Por: {post.autorNombre}</span>
+  <span>
+    Por:{" "}
+    <Link to={`/perfil/${post.autorUid}`} className="autor-link">
+      {post.autorNombre}
+    </Link>
+  </span>
+
               <span>
                 {post.fecha ? new Date(post.fecha.seconds * 1000).toLocaleDateString() : ""}
               </span>

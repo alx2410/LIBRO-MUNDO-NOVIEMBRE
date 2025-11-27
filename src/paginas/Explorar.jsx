@@ -8,11 +8,13 @@ export default function Explorar() {
   const [libros, setLibros] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [filtroGenero, setFiltroGenero] = useState("");
+  const [busqueda, setBusqueda] = useState("");
 
-  // LEER CATEGORÍA DESDE LA URL
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const categoriaURL = queryParams.get("genero") || "";
+  const searchURL = queryParams.get("search") || "";
+  const querySearch = searchURL.toLowerCase();
 
   // Cargar libros
   useEffect(() => {
@@ -29,26 +31,42 @@ export default function Explorar() {
     return () => unsubscribe();
   }, []);
 
-  // Sincronizar filtro con la URL (solo la primera vez)
+  // Si viene un género por URL, aplicarlo
   useEffect(() => {
-    if (categoriaURL) {
-      setFiltroGenero(categoriaURL.toLowerCase());
-    }
+    if (categoriaURL) setFiltroGenero(categoriaURL.toLowerCase());
   }, [categoriaURL]);
 
-  // Filtrar libros
-  const librosFiltrados = filtroGenero
-    ? libros.filter(
-        (libro) => libro.genero.toLowerCase() === filtroGenero.toLowerCase()
-      )
-    : libros;
+  // Si viene búsqueda por URL, aplicarla
+  useEffect(() => {
+    if (searchURL) setBusqueda(searchURL.toLowerCase());
+  }, [searchURL]);
+
+  // =========================== FILTRO FINAL ===========================
+
+  const librosFiltrados = libros.filter((libro) => {
+    const generoLibro = libro.genero?.toLowerCase() || "";
+    const tituloLibro = libro.titulo?.toLowerCase() || "";
+    const autorLibro = libro.autor?.toLowerCase() || "";
+
+    const coincideGenero =
+      filtroGenero ? generoLibro.includes(filtroGenero) : true; // 💥 YA NO ES ===
+
+    const coincideBusqueda =
+      querySearch
+        ? tituloLibro.includes(querySearch) || autorLibro.includes(querySearch) || generoLibro.includes(querySearch)
+        : true;
+
+    return coincideGenero && coincideBusqueda;
+  });
+
+  // ====================================================================
 
   return (
     <div className="explorar-container">
       <h1>Explorar</h1>
       <p>Aquí puedes descubrir nuevas historias y cómics.</p>
 
-      {/* Select (si quieres dejarlo como filtro alternativo) */}
+      {/* Selector de género (se mantiene, no afecta buscador) */}
       <div className="filtro-genero">
         <select
           value={filtroGenero}
@@ -57,7 +75,7 @@ export default function Explorar() {
           <option value="">Todos los géneros</option>
           <option value="romance">Romance</option>
           <option value="fantasia">Fantasía</option>
-          <option value="ciencia-ficcion">Ciencia ficción</option>
+          <option value="ciencia ficcion">Ciencia ficción</option>
           <option value="misterio">Misterio</option>
           <option value="drama">Drama</option>
           <option value="terror">Terror</option>
@@ -82,7 +100,7 @@ export default function Explorar() {
               </div>
             ))
           ) : (
-            <p>No hay libros en esta categoría.</p>
+            <p>No hay resultados.</p>
           )}
         </div>
       )}

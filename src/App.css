@@ -135,53 +135,53 @@ nav button:hover {
    BUSCADOR
 ========================================================= */
 
-.search-bar {
+/* Contenedor del buscador */
+.buscador-navbar {
   display: flex;
   align-items: center;
-  background: transparent;
-  border: 1.5px solid grey;
-  border-radius: 0;
-  overflow: hidden;
-  margin: 0 20px;
+  gap: 0;
 }
 
-.search-bar input {
-  border: none;
-  border-radius: 6;
+/* INPUT minimal */
+.input-buscador {
+  padding: 8px 12px;
+  font-size: 15px;
   outline: none;
-  padding: 6px 10px;
-  font-size: 0.95rem;
-  width: 150px;
-  color: grey;
+  border: 1px solid #c4c4c4;
+  border-radius: 0;          /* SIN BORDES REDONDOS */
   background: transparent;
-  transition: width 0.3s ease;
+  color: #222;
+  transition: border-color .2s;
 }
 
-
-
-.search-bar input:focus {
-  width: 220px;
+.input-buscador:focus {
+  border-color: #4a4a4a;     /* Gris más oscuro al escribir */
 }
 
-.search-bar button {
-  background: none;
-  border: none;
-  color: #fff;
-  padding: 6px 10px;
-  cursor: pointer;
+/* Botón lupa minimal */
+.btn-buscar.lupa {
   display: flex;
   align-items: center;
-  transition: transform 0.2s ease;
+  justify-content: center;
+  padding: 8px 10px;
+  border: 1px solid #c4c4c4;
+  border-radius: 0;          /* Recto, sin curvas */
+  background: transparent;
+  cursor: pointer;
+  transition: background .15s, border-color .2s;
 }
 
-.search-bar button:hover {
-  transform: scale(1.15);
+.btn-buscar.lupa:hover {
+  background: #f3f3f3;
+  border-color: #8e8e8e;
 }
 
-.icon-search {
-  width: 20px;
-  height: 20px;
-  pointer-events: none;
+.btn-buscar.lupa svg {
+  stroke: #555;
+}
+
+.btn-buscar.lupa:hover svg {
+  stroke: #222;
 }
 
 
@@ -700,6 +700,175 @@ nav button:hover {
 }
 
 /* =========================================================
+   MODAL MINI-WATTPAD
+========================================================= */
+
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.45);
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  backdrop-filter: blur(2px);
+  z-index: 2000;
+}
+
+.modal-card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 30%;
+  padding: 2rem 1.6rem;
+  border-radius: 18px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+  position: relative;
+  animation: modalFade 0.25s ease-out;
+}
+
+@keyframes modalFade {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+/* Botón cerrar */
+.modal-cerrar {
+  position: absolute;
+  top: 10px; 
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  color: #777;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.modal-cerrar:hover {
+  color: #ff6b00;
+}
+
+/* Título */
+.modal-title {
+  text-align: center;
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #ff6b00;
+  margin-bottom: 1.4rem;
+}
+
+/* Campos */
+.modal-card label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 4px;
+}
+
+.modal-card input {
+  width: 95%;
+  padding: 10px 12px;
+  border: 2px solid #ffd3b4;
+  border-radius: 10px;
+  background: #fffdfc;
+  outline: none;
+  margin-bottom: 14px;
+  transition: 0.25s;
+}
+
+.botones {
+  margin: 5px;
+}
+
+
+
+.modal-card input:focus {
+  border-color: #ff7b00;
+  box-shadow: 0 0 6px rgba(255, 123, 0, 0.25);
+}
+
+/* Google */
+.btn-google {
+  width: 100%;
+  background: #fff;
+  border: 2px solid #e5e5e5;
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  color: rgb(117, 98, 98);
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.btn-google img {
+  width: 20px;
+}
+
+.btn-google:hover {
+  background: #fafafa;
+  border-color: #dcdcdc;
+}
+
+/* Botones principales */
+.btn-primario {
+  width: 100%;
+  background: linear-gradient(90deg, #ff8c42, #ff6b00);
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: 0.3s;
+}
+.btn-primario:hover {
+  background: linear-gradient(90deg, #ff9b5a, #ff7b00);
+  transform: translateY(-2px);
+}
+
+/* Botones secundarios */
+.btn-secundario {
+  width: 100%;
+  background: #fff6f2;
+  border: 2px solid #ffd3b4;
+  color: #ff6b00;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.25s;
+}
+.btn-secundario:hover {
+  background: #ffe9df;
+  transform: translateY(-1px);
+}
+
+/* Error */
+.modal-error {
+  background: #ffe1e1;
+  color: #b60000;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+#botoncitos {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;   /* centra horizontalmente */ 
+  gap: 1px;                  /* opcional: separación entre botones */
+}
+
+/* =========================================================
    MODAL LOGIN — MINI WATTPAD
 ========================================================= */
 
@@ -853,61 +1022,6 @@ nav button:hover {
   gap: 8px;
   margin-top: 10px;
 }
-
-
-/* =========================================================
-   PERFIL
-========================================================= */
-
-.perfil-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 80vh;
-  background: #1f1f1f;
-  color: #fff;
-}
-
-.perfil-card {
-  background-color: #2a2a2a;
-  padding: 30px 40px;
-  border-radius: 12px;
-  text-align: center;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  max-width: 400px;
-  width: 100%;
-}
-
-.perfil-avatar {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-bottom: 15px;
-  border: 3px solid #ff6b00;
-}
-
-.perfil-card h2 {
-  margin-bottom: 5px;
-  font-size: 1.4rem;
-}
-
-.perfil-card p {
-  margin-bottom: 20px;
-  color: #bbb;
-  font-size: 0.95rem;
-}
-
-.btn-link {
-  background: none;
-  border: none;
-  color: inherit;
-  cursor: pointer;
-  font: inherit;
-  padding: 0;
-}
-
-
 /* =========================================================
    BIBLIOTECA
 ========================================================= */
@@ -1077,4 +1191,110 @@ nav button:hover {
 
 .menu-options .cerrar-sesion:hover {
   color: #ff0000;
+}
+
+
+/* =========================================================
+   DROPDOWN DEL USUARIO (TOOLKIT) — VERSIÓN REACT CORRECTA
+========================================================= */
+
+.user-toolkit {
+  position: relative;
+}
+
+.user-toolkit .avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  object-fit: cover;
+}
+
+.dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: 55px;
+  width: 230px;
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+  z-index: 2000;
+
+  /* ANIMACIÓN SUAVE */
+  opacity: 1;
+  pointer-events: auto;
+  animation: fadeIn 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  
+  padding-bottom: 12px;
+}
+
+.user-info .avatar-big {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #f1933b00;
+
+}
+
+.user-info .avatar-big:hover {
+  border: 2px solid #f1933b;
+}
+
+.user-info .user-name {
+  margin-top: 10px;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #111;
+}
+
+.menu-options {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  list-style: none;
+  padding: 0;
+}
+
+.menu-options li a {
+  text-decoration: none;
+  color: #222;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.menu-options li a:hover {
+  color: #ff6b00;
+}
+
+.menu-options .cerrar-sesion {
+  color: #d30000;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.menu-options .cerrar-sesion:hover {
+  color: #ff0000;
+}
+
+.dropdown-menu hr {
+  border: none;
+  height: 1px;
+  background-color: #d6c8c8;
+  margin: 1px 0;
 }
