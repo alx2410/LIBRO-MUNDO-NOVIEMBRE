@@ -1,24 +1,31 @@
-// src/componentes/Perfil.jsx
+import { storage } from "../firebase/config";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { doc, getDoc, collection, getDocs } from "firebase/firestore";
-import { db } from "../firebase/config";
-import "../styles/Perfil.css";
+import {
+  doc,
+  getDoc,
+  collection,
+  getDocs,
+  setDoc,
+  deleteDoc,
+  addDoc,
+  serverTimestamp
+} from "firebase/firestore";
 
-// ===== MOCKS =====
-const mockHistorias = [
-  { id: 1, titulo: "La Reina de Hielo", descripcion: "Una historia de magia, traición y un destino congelado.", portada: "https://via.placeholder.com/200x280" },
-  { id: 2, titulo: "Sombras del Pasado", descripcion: "Un misterio que regresa para cambiarlo todo.", portada: "https://via.placeholder.com/200x280" },
-];
+import { db } from "../firebase/config";
+import { query, orderBy, onSnapshot } from "firebase/firestore";
+
+import "../styles/Perfil.css";
 
 export default function Perfil() {
   const { uid: uidPerfil } = useParams();
   const navigate = useNavigate();
-  const { user, updateProfileData, getMuro, publicarPost, seguirUsuario, dejarSeguirUsuario } = useAuth();
+  const { user, getMuro, publicarPost, seguirUsuario, dejarSeguirUsuario, updateProfileData } = useAuth();
 
   const esPerfilAjeno = Boolean(uidPerfil);
-  const uidObjetivo = esPerfilAjeno ? uidPerfil : user.uid;
+  const uidObjetivo = esPerfilAjeno ? uidPerfil : user?.uid;
 
   // ===== ESTADOS =====
   const [datosPerfil, setDatosPerfil] = useState(null);
@@ -38,24 +45,23 @@ export default function Perfil() {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState("");
 
-  // === MODAL SIGUIENDO ===
   const [showSiguiendoModal, setShowSiguiendoModal] = useState(false);
   const [listaSiguiendo, setListaSiguiendo] = useState([]);
   const [paginaSiguiendo, setPaginaSiguiendo] = useState(1);
   const [cargandoMas, setCargandoMas] = useState(false);
   const ITEMS_POR_PAGINA = 9;
 
-  // para evitar recargar infinitamente cuando cambia perfil
   const [ultimaCargaUid, setUltimaCargaUid] = useState(null);
 
-  // LISTA DE SEGUIDORES (NUEVO)
   const [listaSeguidores, setListaSeguidores] = useState([]);
+  const [historias, setHistorias] = useState([]);
 
   // =========================
   // 1. Cargar Perfil
   // =========================
   useEffect(() => {
     async function fetchPerfil() {
+      if (!uidObjetivo) return;
       const ref = doc(db, "usuarios", uidObjetivo);
       const snap = await getDoc(ref);
 
@@ -66,22 +72,22 @@ export default function Perfil() {
           seguidores: [],
           siguiendo: [],
         });
-
         setDisplayName(data.username || "Sin nombre");
         setBio(data.bio || "");
         setPreview(data.avatar || data.photoURL || "");
+      } else {
+        setDatosPerfil(null);
       }
-
-      setEsPropio(!esPerfilAjeno || user?.uid === uidPerfil);
+      setEsPropio(user?.uid === uidObjetivo);
     }
     fetchPerfil();
   }, [uidObjetivo, uidPerfil, user]);
 
   // =========================
-  // 1b. Cargar seguidores y siguiendo
+  // 2. Cargar seguidores y siguiendo
   // =========================
   useEffect(() => {
-    if (!user || !datosPerfil) return;
+    if (!user || !datosPerfil || !uidObjetivo) return;
 
     async function cargarCounts() {
       const snapSeguidores = await getDocs(collection(db, "usuarios", uidObjetivo, "seguidores"));
@@ -96,23 +102,22 @@ export default function Perfil() {
       setDatosPerfil(prev => ({
         ...prev,
         seguidores,
-        siguiendo
+        siguiendo,
       }));
 
-      // evitar reset infinito
+      // reset de paginación si cambia de perfil
       if (ultimaCargaUid !== uidObjetivo) {
         setPaginaSiguiendo(1);
         setListaSiguiendo([]);
         setUltimaCargaUid(uidObjetivo);
       }
     }
-
     cargarCounts();
   }, [uidObjetivo, user, datosPerfil, ultimaCargaUid]);
 
-  // =============================
-  // 2. Saber si YA SIGO
-  // =============================
+  // =========================
+  // 3. Saber si ya sigo
+  // =========================
   useEffect(() => {
     if (!user || !esPerfilAjeno) return;
 
@@ -124,20 +129,54 @@ export default function Perfil() {
     checkFollow();
   }, [user, uidPerfil, esPerfilAjeno]);
 
-  // =============================
-  // 3. Cargar Muro
-  // =============================
-  useEffect(() => {
-    async function cargarMuro() {
-      const data = await getMuro(uidObjetivo);
-      setPosts(data);
-    }
-    cargarMuro();
-  }, [uidObjetivo, getMuro]);
+  // =========================
+  // 4. Cargar muro
+  // =========================
+useEffect(() => {
+  if (!uidObjetivo) return;
 
-  // =============================
-  // 4. Toggle Follow
-  // =============================
+  const q = query(
+    collection(db, "muro"),
+    orderBy("fecha", "desc")
+  );
+
+  const unsubscribe = onSnapshot(q, (snapshot) => {
+    setPosts(prevPosts => {
+      const prevMap = prevPosts.reduce((acc, p) => {
+        acc[p.id] = p;
+        return acc;
+      }, {});
+
+      const nuevosPosts = snapshot.docs.map(doc => {
+        const p = doc.data();
+        const existing = prevMap[doc.id] || {};
+
+        return {
+          id: doc.id,
+          uid: p.uid,
+          autor: p.autor,
+          texto: p.texto,
+          fecha: p.fecha,
+          foto: p.foto || "",
+          likesUsuarios: p.likesUsuarios || existing.likesUsuarios || [],
+          dislikesUsuarios: p.dislikesUsuarios || existing.dislikesUsuarios || [],
+          likes: (p.likesUsuarios || existing.likesUsuarios || []).length,
+          dislikes: (p.dislikesUsuarios || existing.dislikesUsuarios || []).length,
+          editando: existing.editando || false,
+          textoEditado: existing.textoEditado || p.texto || "",
+        };
+      });
+
+      return nuevosPosts;
+    });
+  });
+
+  return () => unsubscribe();
+}, [uidObjetivo]);
+
+  // =========================
+  // 5. Toggle Follow
+  // =========================
   const toggleFollow = async () => {
     if (!user) return;
 
@@ -147,23 +186,23 @@ export default function Perfil() {
       await dejarSeguirUsuario(user.uid, uidPerfil);
       setDatosPerfil(prev => ({
         ...prev,
-        seguidores: prev.seguidores.filter(id => id !== user.uid)
+        seguidores: prev.seguidores.filter(id => id !== user.uid),
       }));
       setSeguidoresCount(prev => prev - 1);
     } else {
       await seguirUsuario(user.uid, uidPerfil);
       setDatosPerfil(prev => ({
         ...prev,
-        seguidores: [...prev.seguidores, user.uid]
+        seguidores: [...prev.seguidores, user.uid],
       }));
       setSeguidoresCount(prev => prev + 1);
     }
   };
 
-  // =============================
-  // 5. Editar perfil
-  // =============================
-  const handleFileChange = (e) => {
+  // =========================
+  // 6. Editar perfil
+  // =========================
+  const handleFileChange = e => {
     const img = e.target.files[0];
     if (img) {
       setFile(img);
@@ -171,123 +210,222 @@ export default function Perfil() {
     }
   };
 
-  const guardarCambios = async () => {
+const guardarCambios = async () => {
+  if (!user) return;
+
+  try {
+    const refUsuario = doc(db, "usuarios", user.uid);
+    let avatarURL = preview;
+
+    // Si subieron una nueva imagen, subimos a Storage
+    if (file) {
+      const storageRef = ref(storage, `avatars/${user.uid}/${file.name}`);
+      await uploadBytes(storageRef, file);
+      avatarURL = await getDownloadURL(storageRef);
+    }
+
+    // Actualizamos Firestore
+    await setDoc(
+      refUsuario,
+      { username: displayName, bio, avatar: avatarURL },
+      { merge: true }
+    );
+
+    // Actualizamos estado local
+    setDatosPerfil(prev => ({
+      ...prev,
+      username: displayName,
+      bio,
+      avatar: avatarURL
+    }));
+
+    alert("Perfil actualizado ✔");
+    setEditMode(false);
+    setFile(null); // limpiar archivo cargado
+  } catch (err) {
+    console.error(err);
+    alert("Error al actualizar perfil");
+  }
+};
+
+// ===================================================
+// Cargar SOLO las historias (libros) del usuario
+// ===================================================
+useEffect(() => {
+  if (!uidObjetivo) return;
+
+  async function cargarLibros() {
     try {
-      await updateProfileData({ displayName, bio, file });
-      alert("Perfil actualizado ✔");
-      setEditMode(false);
-    } catch (error) {
-      alert("Error al actualizar perfil");
+      const ref = collection(db, "libros");
+      const snap = await getDocs(ref);
+
+      const librosDelUsuario = snap.docs
+        .map(doc => ({ id: doc.id, ...doc.data() }))
+        .filter(libro => libro.autorId === uidObjetivo);
+
+      setHistorias(librosDelUsuario);
+    } catch (err) {
+      console.error("Error cargando libros:", err);
     }
-  };
+  }
 
-  // =============================
-  // 6. Publicar en muro
-  // =============================
-  const publicarEnMuro = async () => {
-    if (!nuevoPost.trim()) return;
+  cargarLibros();
+}, [uidObjetivo]);
 
-    const nuevo = await publicarPost(nuevoPost, uidObjetivo);
-    setPosts((prev) => [nuevo, ...prev]);
+
+  // =========================
+  // 7. Publicar en muro
+  // =========================
+ const publicarEnMuro = async () => {
+  if (!esPropio || !nuevoPost.trim() || !user) return;
+
+  try {
+    const fotoPerfil = datosPerfil?.avatar || user.photoURL || "";
+
+    await addDoc(collection(db, "muro"), {
+      uid: user.uid,
+      autor: datosPerfil?.username || user.displayName || user.email,
+      texto: nuevoPost.trim(),
+      fecha: serverTimestamp(),
+      foto: fotoPerfil,
+      likesUsuarios: [],
+      dislikesUsuarios: []
+    });
+
+    // ❌ Ya NO agregamos nada al estado local
+    // Firestore lo insertará automáticamente por el onSnapshot
+
     setNuevoPost("");
+
+  } catch (err) {
+    console.error("publicarEnMuro error:", err);
+    alert("No se pudo publicar en el muro.");
+  }
+};
+
+
+
+  // =========================
+  // 8. Likes / Dislikes
+  // =========================
+  const toggleLike = async postId => {
+    const postActualizado = posts.map(p => {
+      if (p.id !== postId) return p;
+
+      const likesUsuarios = p.likesUsuarios || [];
+      const dislikesUsuarios = p.dislikesUsuarios || [];
+      const yaDioLike = likesUsuarios.includes(user.uid);
+
+      let nuevosLikes = yaDioLike ? likesUsuarios.filter(uid => uid !== user.uid) : [...likesUsuarios, user.uid];
+      let nuevosDislikes = dislikesUsuarios.filter(uid => uid !== user.uid);
+
+      return {
+        ...p,
+        likes: nuevosLikes.length,
+        dislikes: nuevosDislikes.length,
+        likesUsuarios: nuevosLikes,
+        dislikesUsuarios: nuevosDislikes
+      };
+    });
+
+    setPosts(postActualizado);
+
+    const post = postActualizado.find(p => p.id === postId);
+    if (!post) return;
+    const postRef = doc(db, "muro", postId);
+    await setDoc(postRef, { likesUsuarios: post.likesUsuarios, dislikesUsuarios: post.dislikesUsuarios }, { merge: true });
   };
 
-  // =============================
-  // 7. Cargar info de SEGUIDORES (NUEVO)
-  // =============================
-  useEffect(() => {
-    if (!datosPerfil) return;
+  const darDislike = async postId => {
+    const postActualizado = posts.map(p => {
+      if (p.id !== postId) return p;
 
-    async function cargarSeguidores() {
-      const segs = datosPerfil.seguidores || [];
+      const likesUsuarios = p.likesUsuarios || [];
+      const dislikesUsuarios = p.dislikesUsuarios || [];
+      const yaDioDislike = dislikesUsuarios.includes(user.uid);
 
-      const lista = await Promise.all(
-        segs.map(async (uid) => {
-          const snap = await getDoc(doc(db, "usuarios", uid));
-          if (!snap.exists()) return null;
+      const nuevosDislikes = yaDioDislike ? dislikesUsuarios.filter(uid => uid !== user.uid) : [...dislikesUsuarios, user.uid];
+      const nuevosLikes = likesUsuarios.filter(uid => uid !== user.uid);
 
-          const data = snap.data();
+      return {
+        ...p,
+        likes: nuevosLikes.length,
+        dislikes: nuevosDislikes.length,
+        likesUsuarios: nuevosLikes,
+        dislikesUsuarios: nuevosDislikes,
+      };
+    });
 
-          const postsSnap = await getDocs(collection(db, "posts"));
-          const historias = postsSnap.docs.filter(p => p.data().uid === uid).length;
+    setPosts(postActualizado);
 
-          const seguidoresSnap = await getDocs(collection(db, "usuarios", uid, "seguidores"));
-          const siguiendoSnap = await getDocs(collection(db, "usuarios", uid, "siguiendo"));
+    const post = postActualizado.find(p => p.id === postId);
+    if (!post) return;
+    const postRef = doc(db, "muro", postId);
+    await setDoc(postRef, { likesUsuarios: post.likesUsuarios, dislikesUsuarios: post.dislikesUsuarios }, { merge: true });
+  };
 
-          return {
-            uid,
-            nickname: data.username,
-            usuario: data.email?.split("@")[0] || "",
-            foto: data.avatar || data.photoURL || "",
-            historias,
-            seguidores: seguidoresSnap.docs.length,
-          };
-        })
-      );
+  // =========================
+  // 9. Editar y borrar posts
+  // =========================
+  const activarEdicion = postId => setPosts(prev => prev.map(p => p.id === postId ? { ...p, editando: true, textoEditado: p.texto } : p));
+  const cancelarEdicion = postId => setPosts(prev => prev.map(p => p.id === postId ? { ...p, editando: false } : p));
+  const guardarEdicion = async postId => {
+    const post = posts.find(p => p.id === postId);
+    if (!post) return;
 
-      setListaSeguidores(lista.filter(u => u !== null));
+    try {
+      const postRef = doc(db, "muro", postId);
+      await setDoc(postRef, { texto: post.textoEditado }, { merge: true });
+      setPosts(prev => prev.map(p => p.id === postId ? { ...p, texto: post.textoEditado, editando: false } : p));
+    } catch (err) {
+      console.error(err);
+      alert("No se pudo guardar la edición.");
     }
+  };
 
-    cargarSeguidores();
-  }, [datosPerfil]);
+  const borrarPost = async postId => {
+    if (!confirm("¿Eliminar publicación?")) return;
+    try {
+      await deleteDoc(doc(db, "muro", postId));
+      setPosts(prev => prev.filter(p => p.id !== postId));
+    } catch (err) {
+      console.error(err);
+      alert("No se pudo borrar la publicación.");
+    }
+  };
 
-  // =============================
-  // 8. Cargar SIGUIENDO (modal)
-  // =============================
-  const cargarSiguiendo = async (reset = false) => {
+  // =========================
+  // 10. Cargar siguiendo (modal)
+  // =========================
+  const cargarSiguiendo = async reset => {
     if (!datosPerfil) return;
-
     const segs = datosPerfil.siguiendo || [];
 
-    // Si hay menos de 9 NO paginamos
     if (segs.length <= ITEMS_POR_PAGINA) {
-      const lista = await Promise.all(
-        segs.map(async (uid) => {
-          const snap = await getDoc(doc(db, "usuarios", uid));
-          if (!snap.exists()) return null;
-
-          const data = snap.data();
-          return {
-            uid,
-            nickname: data.username,
-            usuario: data.email?.split("@")[0],
-            foto: data.avatar || data.photoURL || "",
-          };
-        })
-      );
-
+      const lista = await Promise.all(segs.map(async uid => {
+        const snap = await getDoc(doc(db, "usuarios", uid));
+        if (!snap.exists()) return null;
+        const data = snap.data();
+        return { uid, nickname: data.username, usuario: data.email?.split("@")[0], foto: data.avatar || data.photoURL || "" };
+      }));
       setListaSiguiendo(lista.filter(Boolean));
       return;
     }
 
-    // === PAGINACIÓN ===
     setCargandoMas(true);
-
     const paginaActual = reset ? 1 : paginaSiguiendo;
     const start = (paginaActual - 1) * ITEMS_POR_PAGINA;
-
     const lote = segs.slice(start, start + ITEMS_POR_PAGINA);
 
-    const nuevos = await Promise.all(
-      lote.map(async (uid) => {
-        const snap = await getDoc(doc(db, "usuarios", uid));
-        if (!snap.exists()) return null;
+    const nuevos = await Promise.all(lote.map(async uid => {
+      const snap = await getDoc(doc(db, "usuarios", uid));
+      if (!snap.exists()) return null;
+      const data = snap.data();
+      return { uid, nickname: data.username, usuario: data.email?.split("@")[0], foto: data.avatar || data.photoURL || "" };
+    }));
 
-        const data = snap.data();
-        return {
-          uid,
-          nickname: data.username,
-          usuario: data.email?.split("@")[0],
-          foto: data.avatar || data.photoURL || "",
-        };
-      })
-    );
-
-    if (reset) {
-      setListaSiguiendo(nuevos.filter(Boolean));
-    } else {
-      setListaSiguiendo(prev => [...prev, ...nuevos.filter(Boolean)]);
-    }
+    if (reset) setListaSiguiendo(nuevos.filter(Boolean));
+    else setListaSiguiendo(prev => [...prev, ...nuevos.filter(Boolean)]);
 
     setPaginaSiguiendo(paginaActual + 1);
     setCargandoMas(false);
@@ -297,7 +435,6 @@ export default function Perfil() {
 
   return (
     <div className="perfil-container">
-
       {/* =======================================================
            ENCABEZADO
       ======================================================= */}
@@ -311,9 +448,15 @@ export default function Perfil() {
               <p className="perfil-username">@{datosPerfil.email?.split("@")[0]}</p>
 
               <div className="perfil-stats">
-                <span><strong>Historias:</strong> 2</span>
-                <span><strong>Listas:</strong> 1</span>
-                <span><strong>Seguidores:</strong> {seguidoresCount}</span>
+                <span>
+                  <strong>Historias:</strong> {historias.length}
+                </span>
+                <span>
+                  <strong>Listas:</strong> 1
+                </span>
+                <span>
+                  <strong>Seguidores:</strong> {seguidoresCount}
+                </span>
 
                 <span
                   className="clickable"
@@ -384,23 +527,37 @@ export default function Perfil() {
 
           <div className="info-col-2">
             <h3>Historias de {datosPerfil.username}</h3>
-            {mockHistorias.map((h) => (
-              <div key={h.id} className="historia-card">
+
+            {historias.length === 0 && <p>Este usuario aún no tiene historias.</p>}
+
+            {historias.map((h) => (
+              <div
+                key={h.id}
+                className="historia-card"
+                onClick={() => navigate(`/libro/${h.id}`)}
+                style={{ cursor: "pointer" }}
+              >
                 <div className="historia-content">
                   <h4>{h.titulo}</h4>
                   <p>{h.descripcion}</p>
                 </div>
-                <img src={h.portada} alt="portada" className="historia-portada" />
+
+                {h.portada && <img src={h.portada} alt="portada" className="historia-portada" />}
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {tab === "muro" && (
+     {/* =======================================================
+           MURO
+   ======================================================= */}
+{/* =======================================================
+     MURO
+======================================================= */}
+{tab === "muro" && (
   <div className="muro">
-
-    {/* SOLO SI ES TU PROPIO PERFIL */}
+    {/* Solo mostrar textarea si es tu perfil */}
     {esPropio && (
       <div className="muro-publicar">
         <textarea
@@ -408,23 +565,60 @@ export default function Perfil() {
           onChange={(e) => setNuevoPost(e.target.value)}
           placeholder="Escribe algo en tu muro..."
         ></textarea>
-        <button onClick={publicarEnMuro} className="btn-editar">Publicar</button>
+        <button onClick={publicarEnMuro} className="btn-editar">
+          Publicar
+        </button>
       </div>
     )}
 
-
     {posts.length ? (
       posts
-        .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+        .filter((post) => post.uid === uidObjetivo)
+        .sort((a, b) => {
+          const fechaA = a.fecha?.seconds
+            ? a.fecha.toDate()
+            : new Date(a.fecha);
+          const fechaB = b.fecha?.seconds
+            ? b.fecha.toDate()
+            : new Date(b.fecha);
+          return fechaB - fechaA; // 🔥 Más nuevo arriba
+        })
         .map((post) => (
           <div key={post.id} className="muro-post">
-            {post.foto && <img src={post.foto} className="post-avatar" />}
+
+            {/* 🔥 AQUI REGRESAMOS LA FOTO COMO ANTES */}
+            {post.foto && (
+              <img src={post.foto} className="post-avatar" alt="foto" />
+            )}
+
             <div className="post-contenido">
               <p className="post-autor">{post.autor}</p>
-              <p className="post-texto">{post.texto}</p>
+
+              {/* TEXTO */}
+              {!post.editando ? (
+                <p className="post-texto">{post.texto}</p>
+              ) : (
+                <textarea
+                  value={post.textoEditado}
+                  onChange={(e) =>
+                    setPosts((prev) =>
+                      prev.map((p) =>
+                        p.id === post.id
+                          ? { ...p, textoEditado: e.target.value }
+                          : p
+                      )
+                    )
+                  }
+                />
+              )}
+
+              {/* FECHA */}
               {post.fecha && (
                 <span className="post-fecha">
-                  {new Date(post.fecha).toLocaleString("es-ES", {
+                  {(post.fecha?.toDate
+                    ? post.fecha.toDate()
+                    : new Date(post.fecha)
+                  ).toLocaleString("es-ES", {
                     day: "2-digit",
                     month: "short",
                     year: "numeric",
@@ -432,6 +626,41 @@ export default function Perfil() {
                     minute: "2-digit",
                   })}
                 </span>
+              )}
+
+              {/* REACCIONES */}
+              <div className="post-reacciones">
+                <button onClick={() => toggleLike(post.id)}>
+                  👍 {post.likes || 0}
+                </button>
+                <button onClick={() => darDislike(post.id)}>
+                  👎 {post.dislikes || 0}
+                </button>
+              </div>
+
+              {/* OPCIONES SI ES SU PROPIO POST */}
+              {post.uid === user?.uid && (
+                <div className="post-opciones">
+                  {!post.editando ? (
+                    <>
+                      <button onClick={() => activarEdicion(post.id)}>
+                        ✏️ Editar
+                      </button>
+                      <button onClick={() => borrarPost(post.id)}>
+                        🗑️ Borrar
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button onClick={() => guardarEdicion(post.id)}>
+                        💾 Guardar
+                      </button>
+                      <button onClick={() => cancelarEdicion(post.id)}>
+                        ❌ Cancelar
+                      </button>
+                    </>
+                  )}
+                </div>
               )}
             </div>
           </div>
@@ -442,6 +671,8 @@ export default function Perfil() {
   </div>
 )}
 
+
+
       {/* =======================================================
            SEGUIDORES
       ======================================================= */}
@@ -449,11 +680,7 @@ export default function Perfil() {
         <div className="seguidores-grid">
           {listaSeguidores.length ? (
             listaSeguidores.map((seg) => (
-              <div
-                key={seg.uid}
-                className="seguidor-card"
-                onClick={() => navigate(`/perfil/${seg.uid}`)}
-              >
+              <div key={seg.uid} className="seguidor-card" onClick={() => navigate(`/perfil/${seg.uid}`)}>
                 <img src={seg.foto} className="seguidor-avatar" />
 
                 <div className="seguidor-info">
@@ -470,28 +697,16 @@ export default function Perfil() {
         </div>
       )}
 
-      {/* ===========================================
-           MODAL SIGUIENDO — CORREGIDO
-      =========================================== */}
+      {/* MODAL SIGUIENDO */}
       {showSiguiendoModal && (
         <div className="modal-overlay" onClick={() => setShowSiguiendoModal(false)}>
           <div className="modal-siguiendo" onClick={(e) => e.stopPropagation()}>
-
-            {/* BOTÓN X */}
-            <button className="cerrar-modal" onClick={() => setShowSiguiendoModal(false)}>
-              ✕
-            </button>
-
-            {/* TÍTULO */}
+            <button className="cerrar-modal" onClick={() => setShowSiguiendoModal(false)}>✕</button>
             <h3 className="titulo-modal">({datosPerfil.siguiendo.length}) Siguiendo</h3>
 
             <div className="modal-lista">
               {listaSiguiendo.map((u) => (
-                <div
-                  key={u.uid}
-                  className="modal-item"
-                  onClick={() => navigate(`/perfil/${u.uid}`)}
-                >
+                <div key={u.uid} className="modal-item" onClick={() => navigate(`/perfil/${u.uid}`)}>
                   <img src={u.foto} className="modal-avatar" />
                   <div>
                     <p className="modal-nick">{u.nickname}</p>
@@ -501,20 +716,19 @@ export default function Perfil() {
               ))}
             </div>
 
-            {/* CARGAR MÁS */}
             {listaSiguiendo.length < datosPerfil.siguiendo.length && (
-              <button
-                className="btn-cargar"
-                onClick={() => cargarSiguiendo(false)}
-                disabled={cargandoMas}
-              >
+              <button className="btn-cargar" onClick={() => cargarSiguiendo(false)} disabled={cargandoMas}>
                 {cargandoMas ? "Cargando..." : "Cargar más"}
               </button>
             )}
           </div>
         </div>
       )}
-
     </div>
   );
 }
+
+
+
+
+
