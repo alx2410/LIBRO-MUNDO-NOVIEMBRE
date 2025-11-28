@@ -272,6 +272,51 @@ useEffect(() => {
   cargarLibros();
 }, [uidObjetivo]);
 
+  // =======================================================
+// Cargar lista de seguidores COMPLETA (con foto y username)
+// =======================================================
+useEffect(() => {
+  if (!uidObjetivo || seguidoresCount === 0) {
+    setListaSeguidores([]);
+    return;
+  }
+
+  async function cargarSeguidores() {
+    try {
+      const refSeg = collection(db, "usuarios", uidObjetivo, "seguidores");
+      const snap = await getDocs(refSeg);
+
+      const seguidoresUIDs = snap.docs.map(d => d.id);
+
+      // Convertir cada UID en datos reales del usuario
+      const datos = await Promise.all(
+        seguidoresUIDs.map(async (uid) => {
+          const info = await getDoc(doc(db, "usuarios", uid));
+          if (!info.exists()) return null;
+
+          const data = info.data();
+          return {
+            uid,
+            nickname: data.username || "Sin nombre",
+            usuario: data.email?.split("@")[0] || "user",
+            foto: data.avatar || data.photoURL || "",
+            historias: data.historiasCount || 0,
+            seguidores: data.seguidoresCount || 0,
+          };
+        })
+      );
+
+      setListaSeguidores(datos.filter(Boolean));
+    } catch (err) {
+      console.error("Error cargando seguidores:", err);
+    }
+  }
+
+  cargarSeguidores();
+}, [uidObjetivo, seguidoresCount]);
+
+
+
 
   // =========================
   // 7. Publicar en muro
