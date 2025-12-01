@@ -20,31 +20,42 @@ import "../styles/Comunidad.css";
 /* ============================
    COMPONENTE COMENTARIO
 =============================== */
-function Comentario({ comentario, postId, user }) {
+function Comentario({ comentario, publicacionId, user }) {
   const [editando, setEditando] = useState(false);
   const [nuevoTexto, setNuevoTexto] = useState(comentario.texto);
 
   const handleEditar = async () => {
-    const comentarioRef = doc(db, "posts", postId, "comentarios", comentario.id);
+    const comentarioRef = doc(
+      db,
+      "comunidad",
+      publicacionId,
+      "comentarios",
+      comentario.id
+    );
     await updateDoc(comentarioRef, { texto: nuevoTexto });
     setEditando(false);
   };
 
   const handleBorrar = async () => {
-    const comentarioRef = doc(db, "posts", postId, "comentarios", comentario.id);
+    const comentarioRef = doc(
+      db,
+      "comunidad",
+      publicacionId,
+      "comentarios",
+      comentario.id
+    );
     await deleteDoc(comentarioRef);
   };
 
   return (
     <div className="comentario-card">
       <p>
-  <strong>
-    <Link to={`/perfil/${comentario.autorUid}`} className="autor-link">
-      {comentario.autorNombre}
-    </Link>
-  </strong>
-</p>
-
+        <strong>
+          <Link to={`/perfil/${comentario.autorUid}`} className="autor-link">
+            {comentario.autorNombre}
+          </Link>
+        </strong>
+      </p>
 
       {editando ? (
         <>
@@ -80,25 +91,36 @@ function Comentario({ comentario, postId, user }) {
 =============================== */
 export default function Comunidad() {
   const { user } = useAuth();
-  const [posts, setPosts] = useState([]);
+  const [publicaciones, setPublicaciones] = useState([]);
   const [titulo, setTitulo] = useState("");
   const [rating, setRating] = useState(0);
   const [comentarioPrincipal, setComentarioPrincipal] = useState("");
 
+  /* === Escuchar TODA la colección comunidad === */
   useEffect(() => {
-    const q = query(collection(db, "posts"), orderBy("fecha", "desc"));
+    const q = query(
+      collection(db, "comunidad"),
+      orderBy("fecha", "desc")
+    );
+
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const postsData = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      setPosts(postsData);
+      const data = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      setPublicaciones(data);
     });
+
     return () => unsubscribe();
   }, []);
 
+  /* === Crear nueva publicación === */
   const handlePublicar = async () => {
     if (!titulo || rating === 0 || !comentarioPrincipal) return;
     if (!user) return alert("Debes iniciar sesión.");
 
-    await addDoc(collection(db, "posts"), {
+    await addDoc(collection(db, "comunidad"), {
       titulo,
       rating,
       comentarioPrincipal,
@@ -116,7 +138,7 @@ export default function Comunidad() {
     <div className="comunidad-container">
       <h1 className="comunidad-titulo">Comunidad</h1>
 
-      {/* Formulario nuevo post */}
+      {/* Formulario nueva publicación */}
       <div className="formulario-post">
         <input
           type="text"
@@ -146,33 +168,35 @@ export default function Comunidad() {
         </button>
       </div>
 
-      {/* Lista de posts */}
+      {/* Lista de publicaciones */}
       <div>
-        {posts.map((post) => (
-          <div key={post.id} className="post-card">
-            <h2 className="post-titulo">{post.titulo}</h2>
+        {publicaciones.map((pub) => (
+          <div key={pub.id} className="post-card">
+            <h2 className="post-titulo">{pub.titulo}</h2>
 
             <div className="rating-mostrar">
-              <StarRating totalStars={5} value={post.rating} readOnly />
-              <span>({post.rating}★)</span>
+              <StarRating totalStars={5} value={pub.rating} readOnly />
+              <span>({pub.rating}★)</span>
             </div>
 
-            <p className="mt-2">{post.comentarioPrincipal}</p>
+            <p className="mt-2">{pub.comentarioPrincipal}</p>
 
             <div className="post-info">
-  <span>
-    Por:{" "}
-    <Link to={`/perfil/${post.autorUid}`} className="autor-link">
-      {post.autorNombre}
-    </Link>
-  </span>
+              <span>
+                Por:{" "}
+                <Link to={`/perfil/${pub.autorUid}`} className="autor-link">
+                  {pub.autorNombre}
+                </Link>
+              </span>
 
               <span>
-                {post.fecha ? new Date(post.fecha.seconds * 1000).toLocaleDateString() : ""}
+                {pub.fecha
+                  ? new Date(pub.fecha.seconds * 1000).toLocaleDateString()
+                  : ""}
               </span>
             </div>
 
-            <Comentarios postId={post.id} user={user} />
+            <Comentarios publicacionId={pub.id} user={user} />
           </div>
         ))}
       </div>
@@ -183,13 +207,14 @@ export default function Comunidad() {
 /* ============================
    COMENTARIOS SECUNDARIOS
 =============================== */
-function Comentarios({ postId, user }) {
+function Comentarios({ publicacionId, user }) {
   const [comentarios, setComentarios] = useState([]);
   const [nuevoComentario, setNuevoComentario] = useState("");
 
+  /* === Escuchar comentarios de cada publicación === */
   useEffect(() => {
     const q = query(
-      collection(db, "posts", postId, "comentarios"),
+      collection(db, "comunidad", publicacionId, "comentarios"),
       orderBy("fecha", "asc")
     );
 
@@ -198,18 +223,22 @@ function Comentarios({ postId, user }) {
     });
 
     return () => unsubscribe();
-  }, [postId]);
+  }, [publicacionId]);
 
+  /* === Crear comentario === */
   const handlePublicarComentario = async () => {
     if (!nuevoComentario) return;
     if (!user) return alert("Debes iniciar sesión para comentar.");
 
-    await addDoc(collection(db, "posts", postId, "comentarios"), {
-      texto: nuevoComentario,
-      autorNombre: user.username,
-      autorUid: user.uid,
-      fecha: serverTimestamp(),
-    });
+    await addDoc(
+      collection(db, "comunidad", publicacionId, "comentarios"),
+      {
+        texto: nuevoComentario,
+        autorNombre: user.username,
+        autorUid: user.uid,
+        fecha: serverTimestamp(),
+      }
+    );
 
     setNuevoComentario("");
   };
@@ -217,7 +246,12 @@ function Comentarios({ postId, user }) {
   return (
     <div>
       {comentarios.map((c) => (
-        <Comentario key={c.id} comentario={c} postId={postId} user={user} />
+        <Comentario
+          key={c.id}
+          comentario={c}
+          publicacionId={publicacionId}
+          user={user}
+        />
       ))}
 
       <div className="flex gap-2 mt-2">
@@ -229,7 +263,7 @@ function Comentarios({ postId, user }) {
           onChange={(e) => setNuevoComentario(e.target.value)}
         />
         <button onClick={handlePublicarComentario} className="btn-comentar">
-          Comentar
+          Comentar nuevos cambios
         </button>
       </div>
     </div>
